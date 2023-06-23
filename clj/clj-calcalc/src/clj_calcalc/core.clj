@@ -70,53 +70,65 @@
        ~index
        (recur (inc ~index)))))
 
-(defmacro final (index initial condition)
+(defmacro final [index initial condition]
   ;; TYPE (* integer (integer->boolean)) -> integer
   ;; Last integer greater or equal to $initial$ such that
   ;; $condition$ holds.
-  `(loop for ,index from ,initial 
-         when (not ,condition)
-         return (dec ,index)))
+  `(loop [~index ~initial]
+     (if-not ~condition
+       (dec ~index)
+       (recur (inc ~index)))))
 
-(defmacro sum (expression index initial condition)
+(defmacro sum [expression index initial condition]
   ;; TYPE ((integer->real) * integer (integer->boolean))
   ;; TYPE  -> real
   ;; Sum $expression$ for $index$ = $initial$ and successive
   ;; integers, as long as $condition$ holds.
-  `(loop for ,index from ,initial
-         while ,condition
-         sum ,expression))
+  `(loop [~index ~initial
+          sum# 0]
+     (if-not ~condition
+       sum#
+       (recur (inc ~index)
+              (+ sum# ~expression)))))
 
-(defmacro prod (expression index initial condition)
+(defmacro prod [expression index initial condition]
   ;; TYPE ((integer->real) * integer (integer->boolean))
   ;; TYPE  -> real
   ;; Product of $expression$ for $index$ = $initial$ and successive
   ;; integers, as long as $condition$ holds.
-  `(apply '*
-          (loop for ,index from ,initial
-                while ,condition
-                collect ,expression)))
+  `(apply *
+          (loop [~index ~initial
+                 exprs# []]
+            (if-not ~condition
+              exprs
+              (recur (inc ~index)
+                     (conj exprs# ~expression))))))
 
-(defmacro binary-search (l lo h hi x test end)
+(defmacro binary-search [l lo h hi x test end]
   ;; TYPE (* real * real * (real->boolean)
   ;; TYPE  ((real real)->boolean)) -> real
   ;; Bisection search for $x$ in [$lo$..$hi$] such that
   ;; $end$ holds.  $test$ determines when to go left.
   (let [left (gensym)]
-    `(do* ((,x false (/ (+ ,h ,l) 2))
-           (,left false ,test)
-           (,l ,lo (if ,left ,l ,x))
-           (,h ,hi (if ,left ,x ,h)))
-          (,end (/ (+ ,h ,l) 2)))))
+    `(loop [~x (/ (+ ~h ~l) 2)
+            ~left false
+            ~l ~lo
+            ~h ~hi]
+       (if (~end (/ (+ ~h ~l) 2))
+         ~x
+         (recur (/ (+ ~h ~l) 2)
+                ~test
+                (if ~left ~l ~x)
+                (if ~left ~x ~h))))))
 
-(defmacro invert-angular (f y r)
+(defmacro invert-angular [f y r]
   ;; TYPE (real->angle real interval) -> real
   ;; Use bisection to find inverse of angular function
   ;; $f$ at $y$ within interval $r$.
-  (let [varepsilon 1/100000]          ; Desired accuracy
-    `(binary-search l (begin ,r) u (end ,r) x
-                    (< (mod (- (,f x) ,y) 360) (deg 180))
-                    (< (- u l) ,varepsilon))))
+  (let [varepsilon# 1/100000]          ; Desired accuracy
+    `(binary-search l (begin ~r) u (end ~r) x
+                    (< (mod (- (~f x) ~y) 360) (deg 180))
+                    (< (- u l) varepsilon#))))
 
 (defmacro sigma [list body]
   ;; TYPE (list-of-pairs (list-of-reals->real))
