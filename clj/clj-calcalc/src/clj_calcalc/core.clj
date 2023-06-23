@@ -1114,7 +1114,7 @@
   ;; TYPE icelandic-year -> boolean
   ;; True if Icelandic $i-year$ is a leap year (53 weeks)
   ;; on the Icelandic calendar.
-  (/= (- (icelandic-summer (inc i-year))
+  (not= (- (icelandic-summer (inc i-year))
          (icelandic-summer i-year))
       364))
 
@@ -1303,9 +1303,9 @@
         day (standard-day j-date)
         year (standard-year j-date)
         month-prime (amod (inc month) 12)
-        year-prime (if (/= month-prime 1)
+        year-prime (if (not= month-prime 1)
                      year
-                     (if (/= year -1)
+                     (if (not= year -1)
                        (inc year)
                        1))
         kalends1 (fixed-from-roman
@@ -1319,7 +1319,7 @@
      (<= day (ides-of-month month))
      (roman-date year month ides
                  (inc (- (ides-of-month month) day)) false)
-     (or (/= month february)
+     (or (not= month february)
          (not (julian-leap-year? year)))
      ;; After the Ides, in a month that is not February of a
      ;; leap year
@@ -5193,10 +5193,10 @@
      widow
      (and
       (= first-minor-term 1)        ; no lichun at start...
-      (/= next-first-minor-term 12)); ...only at end
+      (not= next-first-minor-term 12)); ...only at end
      blind
      (and
-      (/= first-minor-term 1)       ; lichun at start...
+      (not= first-minor-term 1)       ; lichun at start...
       (= next-first-minor-term 12)) ; ... not at end
      bright
      :true double-bright)))            ; lichun at start and end
@@ -5548,7 +5548,7 @@
                     (hindu-lunar-from-fixed
                      (- s 15)))]
                (or                     ; In month starting near $s$.
-                (/= (hindu-lunar-month mid) month) 
+                (not= (hindu-lunar-month mid) month) 
                 (and (hindu-lunar-leap-month mid)
                      (not leap-month))))
              (mod3 k -15 15)
@@ -5691,7 +5691,7 @@
   ;; TYPE  boolean
   ;; True of Hindu lunar month $l-month$ in $l-year$
   ;; is expunged.
-  (/= l-month
+  (not= l-month
       (hindu-lunar-month
        (hindu-lunar-from-fixed
         (fixed-from-hindu-lunar
@@ -5882,7 +5882,7 @@
                     (astro-hindu-lunar-from-fixed
                      (- s 15)))]
                (or                     ; In month starting near $s$.
-                (/= (hindu-lunar-month mid) month) 
+                (not= (hindu-lunar-month mid) month) 
                 (and (hindu-lunar-leap-month mid)
                      (not leap-month))))
              (mod3 k -15 15)
@@ -5991,7 +5991,7 @@
         try (fixed-from-hindu-lunar lunar)
         mid (hindu-lunar-from-fixed
              (if (> l-day 15) (- try 5) try))
-        expunged? (/= l-month (hindu-lunar-month mid))
+        expunged? (not= l-month (hindu-lunar-month mid))
         l-date                          ; day in next month
         (hindu-lunar-date (hindu-lunar-year mid)
                           (hindu-lunar-month mid)
@@ -6002,7 +6002,7 @@
                      (not
                       (hindu-lunar-on-or-before?
                        (hindu-lunar-from-fixed d) l-date))))
-          (/= l-day (hindu-lunar-day
+          (not= l-day (hindu-lunar-day
                      (hindu-lunar-from-fixed try)))
           (dec try)
           :true try)))
