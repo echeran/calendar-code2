@@ -69,6 +69,9 @@
 
 (def PI Math/PI)
 
+(defn sqrt [x]
+  (Math/sqrt x))
+
 ;; (def true
 ;;   ;; TYPE boolean
 ;;   ;; Constant representing true.
