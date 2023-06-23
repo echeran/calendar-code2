@@ -1993,12 +1993,12 @@
   ;; TYPE gregorian-year -> fixed-date
   ;; Fixed date of Tishah be-Av occurring in
   ;; Gregorian year $g-year$.
-  (let [(h-year                         ; Hebrew year
-         (- g-year
-            (gregorian-year-from-fixed hebrew-epoch))
-         av9
-         (fixed-from-hebrew
-          (hebrew-date h-year av 9)))]
+  (let [h-year                          ; Hebrew year
+        (- g-year
+           (gregorian-year-from-fixed hebrew-epoch))
+        av9
+        (fixed-from-hebrew
+         (hebrew-date h-year av 9))]
     (if ; Ninth of Av is Saturday
         (= (day-of-week-from-fixed av9) saturday)
         ;; Then the next day
