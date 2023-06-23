@@ -252,7 +252,7 @@
 (def jd-epoch
   ;; TYPE moment
   ;; Fixed time of start of the julian day number.
-  (rd -1721424.5L0))
+  (rd -1721424.5))
 
 (defn moment-from-jd [jd]
   ;; TYPE julian-day-number -> moment
@@ -2888,12 +2888,12 @@
       bogus
     (mod
      (if (= x 0)
-         (* (sign y) (deg 90L0))
+         (* (sign y) (deg 90.0))
          (let [alpha (degrees-from-radians
                       (atan (/ y x)))]
          (if (>= x 0)
              alpha
-           (+ alpha (deg 180L0)))))
+           (+ alpha (deg 180.0)))))
      360)))
 
 (defn arcsin-degrees [x]
@@ -3042,11 +3042,11 @@
   ;; TYPE moment -> angle
   ;; Obliquity of ecliptic at moment $tee$.
   (let [c (julian-centuries tee)]
-    (+ (angle 23 26 21.448L0)
-       (poly c (list 0L0
-                     (angle 0 0 -46.8150L0)
-                     (angle 0 0 -0.00059L0)
-                     (angle 0 0 0.001813L0))))))
+    (+ (angle 23 26 21.448)
+       (poly c (list 0.0
+                     (angle 0 0 -46.8150)
+                     (angle 0 0 -0.00059)
+                     (angle 0 0 0.001813))))))
 
 (defn declination [tee beta lambda]
   ;; TYPE (moment half-circle circle) -> angle
@@ -3080,7 +3080,7 @@
   (let [phi (latitude location)
         tee-prime (universal-from-local tee location)
         delta                           ; Declination of sun.
-        (declination tee-prime (deg 0L0)
+        (declination tee-prime (deg 0.0)
                      (solar-longitude tee-prime))]
     (+ (* (tan-degrees phi)
           (tan-degrees delta))
@@ -3339,7 +3339,7 @@
 (def j2000
   ;; TYPE moment
   ;; Noon at start of Gregorian year 2000.
-  (+ (hr 12L0) (gregorian-new-year 2000)))
+  (+ (hr 12.0) (gregorian-new-year 2000)))
 
 (defn sidereal-from-moment [tee]
   ;; TYPE moment -> angle
@@ -3348,22 +3348,22 @@
   ;; by Jean Meeus, Willmann-Bell, Inc., 2nd edn., 1998, p. 88.
   (let [c (/ (- tee j2000) 36525)]
     (mod (poly c 
-               (deg (list 280.46061837L0
-                          (* 36525 360.98564736629L0)
-                          0.000387933L0 -1/38710000)))
+               (deg (list 280.46061837
+                          (* 36525 360.98564736629)
+                          0.000387933 -1/38710000)))
          360)))
 
 (def mean-tropical-year
   ;; TYPE duration
-  365.242189L0)
+  365.242189)
 
 (def mean-sidereal-year
   ;; TYPE duration
-  365.25636L0)
+  365.25636)
 
 (def mean-synodic-month
   ;; TYPE duration
-  29.530588861L0)
+  29.530588861)
 
 (defn ephemeris-correction [tee]
   ;; TYPE moment -> fraction-of-day
@@ -3379,49 +3379,49 @@
              36525)
         c2051 (* 1/86400
                  (+ -20 (* 32 (expt (/ (- year 1820) 100) 2))
-                    (* 0.5628L0 (- 2150 year))))
+                    (* 0.5628 (- 2150 year))))
         y2000 (- year 2000)
         c2006 (* 1/86400
                  (poly y2000
-                       (list 62.92L0 0.32217L0 0.005589L0)))
+                       (list 62.92 0.32217 0.005589)))
         c1987 (* 1/86400
                  (poly y2000
-                       (list 63.86L0 0.3345L0 -0.060374L0 
-                             0.0017275L0
-                             0.000651814L0 0.00002373599L0)))
+                       (list 63.86 0.3345 -0.060374 
+                             0.0017275
+                             0.000651814 0.00002373599)))
         c1900 (poly c 
-                    (list -0.00002L0 0.000297L0 0.025184L0
-                          -0.181133L0 0.553040L0 -0.861938L0
-                          0.677066L0 -0.212591L0))
+                    (list -0.00002 0.000297 0.025184
+                          -0.181133 0.553040 -0.861938
+                          0.677066 -0.212591))
         c1800 (poly c 
-                    (list -0.000009L0 0.003844L0 0.083563L0 
-                          0.865736L0
-                          4.867575L0 15.845535L0 31.332267L0
-                          38.291999L0 28.316289L0 11.636204L0
-                          2.043794L0))
+                    (list -0.000009 0.003844 0.083563 
+                          0.865736
+                          4.867575 15.845535 31.332267
+                          38.291999 28.316289 11.636204
+                          2.043794))
         y1700 (- year 1700)
         c1700 (* 1/86400
                  (poly y1700
-                       (list 8.118780842L0 -0.005092142L0
-                             0.003336121L0 -0.0000266484L0)))
+                       (list 8.118780842 -0.005092142
+                             0.003336121 -0.0000266484)))
         y1600 (- year 1600)
         c1600 (* 1/86400
                  (poly y1600
-                       (list 120 -0.9808L0 -0.01532L0 
-                             0.000140272128L0)))
-        y1000 (/ (- year 1000) 100L0)
+                       (list 120 -0.9808 -0.01532 
+                             0.000140272128)))
+        y1000 (/ (- year 1000) 100.0)
         c500 (* 1/86400
                 (poly y1000
-                      (list 1574.2L0 -556.01L0 71.23472L0 0.319781L0
-                            -0.8503463L0 -0.005050998L0 
-                            0.0083572073L0)))
-        y0 (/ year 100L0)
+                      (list 1574.2 -556.01 71.23472 0.319781
+                            -0.8503463 -0.005050998 
+                            0.0083572073)))
+        y0 (/ year 100.0)
         c0 (* 1/86400
               (poly y0
-                    (list 10583.6L0 -1014.41L0 33.78311L0 
-                          -5.952053L0 -0.1798452L0 0.022174192L0
-                          0.0090316521L0)))
-        y1820 (/ (- year 1820) 100L0)
+                    (list 10583.6 -1014.41 33.78311 
+                          -5.952053 -0.1798452 0.022174192
+                          0.0090316521)))
+        y1820 (/ (- year 1820) 100.0)
         other (* 1/86400
                  (poly y1820 (list -20 0 32)))]
     (cond (<= 2051 year 2150) c2051
@@ -3443,16 +3443,16 @@
   (let [c (julian-centuries tee)
         lambda
         (poly c
-              (deg (list 280.46645L0 36000.76983L0
-                         0.0003032L0)))
+              (deg (list 280.46645 36000.76983
+                         0.0003032)))
         anomaly
         (poly c
-              (deg (list 357.52910L0 35999.05030L0
-                         -0.0001559L0 -0.00000048L0)))
+              (deg (list 357.52910 35999.05030
+                         -0.0001559 -0.00000048)))
         eccentricity
         (poly c
-              (list 0.016708617L0 -0.000042037L0
-                    -0.0000001236L0))
+              (list 0.016708617 -0.000042037
+                    -0.0000001236))
         varepsilon (obliquity tee)
         y (expt (tan-degrees (/ varepsilon 2)) 2)
         equation
@@ -3461,10 +3461,10 @@
               (* -2 eccentricity (sin-degrees anomaly))
               (* 4 eccentricity y (sin-degrees anomaly)
                  (cos-degrees (* 2 lambda)))
-              (* -0.5L0 y y (sin-degrees (* 4 lambda)))
-              (* -1.25L0 eccentricity eccentricity
+              (* -0.5 y y (sin-degrees (* 4 lambda)))
+              (* -1.25 eccentricity eccentricity
                  (sin-degrees (* 2 anomaly)))))]
-    (* (sign equation) (min (abs equation) (hr 12L0)))))
+    (* (sign equation) (min (abs equation) (hr 12.0)))))
 
 (defn solar-longitude [tee]
   ;; TYPE moment -> season
@@ -3481,36 +3481,36 @@
               25 24 21 21 20 18 17 14 13 13 13 12 10 10 10
               10)
         multipliers
-        (list 0.9287892L0 35999.1376958L0 35999.4089666L0
-              35998.7287385L0 71998.20261L0 71998.4403L0
-              36000.35726L0 71997.4812L0 32964.4678L0
-              -19.4410L0 445267.1117L0 45036.8840L0 3.1008L0
-              22518.4434L0 -19.9739L0 65928.9345L0
-              9038.0293L0 3034.7684L0 33718.148L0 3034.448L0
-              -2280.773L0 29929.992L0 31556.493L0 149.588L0
-              9037.750L0 107997.405L0 -4444.176L0 151.771L0
-              67555.316L0 31556.080L0 -4561.540L0
-              107996.706L0 1221.655L0 62894.167L0
-              31437.369L0 14578.298L0 -31931.757L0
-              34777.243L0 1221.999L0 62894.511L0
-              -4442.039L0 107997.909L0 119.066L0 16859.071L0
-              -4.578L0 26895.292L0 -39.127L0 12297.536L0
-              90073.778L0)
+        (list 0.9287892 35999.1376958 35999.4089666
+              35998.7287385 71998.20261 71998.4403
+              36000.35726 71997.4812 32964.4678
+              -19.4410 445267.1117 45036.8840 3.1008
+              22518.4434 -19.9739 65928.9345
+              9038.0293 3034.7684 33718.148 3034.448
+              -2280.773 29929.992 31556.493 149.588
+              9037.750 107997.405 -4444.176 151.771
+              67555.316 31556.080 -4561.540
+              107996.706 1221.655 62894.167
+              31437.369 14578.298 -31931.757
+              34777.243 1221.999 62894.511
+              -4442.039 107997.909 119.066 16859.071
+              -4.578 26895.292 -39.127 12297.536
+              90073.778)
         addends
-        (list 270.54861L0 340.19128L0 63.91854L0 331.26220L0
-              317.843L0 86.631L0 240.052L0 310.26L0 247.23L0
-              260.87L0 297.82L0 343.14L0 166.79L0 81.53L0
-              3.50L0 132.75L0 182.95L0 162.03L0 29.8L0
-              266.4L0 249.2L0 157.6L0 257.8L0 185.1L0 69.9L0
-              8.0L0 197.1L0 250.4L0 65.3L0 162.7L0 341.5L0
-              291.6L0 98.5L0 146.7L0 110.0L0 5.2L0 342.6L0
-              230.9L0 256.1L0 45.3L0 242.9L0 115.2L0 151.8L0
-              285.3L0 53.3L0 126.6L0 205.7L0 85.9L0
-              146.1L0)
+        (list 270.54861 340.19128 63.91854 331.26220
+              317.843 86.631 240.052 310.26 247.23
+              260.87 297.82 343.14 166.79 81.53
+              3.50 132.75 182.95 162.03 29.8
+              266.4 249.2 157.6 257.8 185.1 69.9
+              8.0 197.1 250.4 65.3 162.7 341.5
+              291.6 98.5 146.7 110.0 5.2 342.6
+              230.9 256.1 45.3 242.9 115.2 151.8
+              285.3 53.3 126.6 205.7 85.9
+              146.1)
         lambda
-        (+ (deg 282.7771834L0)
-           (* (deg 36000.76953744L0) c)
-           (* (deg 0.000005729577951308232L0)
+        (+ (deg 282.7771834)
+           (* (deg 36000.76953744) c)
+           (* (deg 0.000005729577951308232)
               (sigma ((x coefficients)
                       (y addends)
                       (z multipliers))
@@ -3523,22 +3523,22 @@
   ;; Longitudinal nutation at moment $tee$.
   (let [c                               ; moment in Julian centuries
         (julian-centuries tee)
-        cap-A (poly c (deg (list 124.90L0 -1934.134L0
-                                 0.002063L0)))
-        cap-B (poly c (deg (list 201.11L0 72001.5377L0
-                                 0.00057L0)))]
-    (+ (* (deg -0.004778L0) (sin-degrees cap-A))
-       (* (deg -0.0003667L0) (sin-degrees cap-B)))))
+        cap-A (poly c (deg (list 124.90 -1934.134
+                                 0.002063)))
+        cap-B (poly c (deg (list 201.11 72001.5377
+                                 0.00057)))]
+    (+ (* (deg -0.004778) (sin-degrees cap-A))
+       (* (deg -0.0003667) (sin-degrees cap-B)))))
 
 (defn aberration [tee]
   ;; TYPE moment -> circle
   ;; Aberration at moment $tee$.
   (let [c                               ; moment in Julian centuries
         (julian-centuries tee)]
-    (- (* (deg 0.0000974L0)
+    (- (* (deg 0.0000974)
           (cos-degrees
-           (+ (deg 177.63L0) (* (deg 35999.01848L0) c))))
-       (deg 0.005575L0))))
+           (+ (deg 177.63) (* (deg 35999.01848) c))))
+       (deg 0.005575))))
 
 (defn solar-longitude-after [lambda tee]
   ;; TYPE (season moment) -> moment
@@ -3588,17 +3588,17 @@
   ;; Willmann-Bell, 2nd edn., 1998, pp. 136-137.
   (let [c (julian-centuries tee)
         eta (mod
-             (poly c (list 0 (secs 47.0029L0) 
-                           (secs -0.03302L0)
-                           (secs 0.000060L0)))
+             (poly c (list 0 (secs 47.0029) 
+                           (secs -0.03302)
+                           (secs 0.000060)))
              360)
-        cap-P (mod (poly c (list (deg 174.876384L0) 
-                                 (secs -869.8089L0) 
-                                 (secs 0.03536L0)))
+        cap-P (mod (poly c (list (deg 174.876384) 
+                                 (secs -869.8089) 
+                                 (secs 0.03536)))
                    360)
-        p (mod (poly c (list 0 (secs 5029.0966L0)
-                             (secs 1.11113L0)
-                             (secs 0.000006L0)))
+        p (mod (poly c (list 0 (secs 5029.0966)
+                             (secs 1.11113)
+                             (secs 0.000006)))
                360)
         cap-A (* (cos-degrees eta) (sin-degrees cap-P))
         cap-B (cos-degrees cap-P)
@@ -3637,8 +3637,8 @@
   ;; Willmann-Bell, 2nd edn., 1998, pp. 337-340.
   (mod
    (poly c
-         (deg (list 218.3164477L0 481267.88123421L0
-                    -0.0015786L0 1/538841 -1/65194000)))
+         (deg (list 218.3164477 481267.88123421
+                    -0.0015786 1/538841 -1/65194000)))
    360))
 
 (defn lunar-elongation [c]
@@ -3649,8 +3649,8 @@
   ;; Willmann-Bell, 2nd edn., 1998, p. 338.
   (mod
    (poly c
-         (deg (list 297.8501921L0 445267.1114034L0
-                    -0.0018819L0 1/545868 -1/113065000)))
+         (deg (list 297.8501921 445267.1114034
+                    -0.0018819 1/545868 -1/113065000)))
    360))
 
 (defn solar-anomaly [c]
@@ -3661,8 +3661,8 @@
   ;; Willmann-Bell, 2nd edn., 1998, p. 338.
   (mod
    (poly c
-         (deg (list 357.5291092L0 35999.0502909L0
-                    -0.0001536L0 1/24490000)))
+         (deg (list 357.5291092 35999.0502909
+                    -0.0001536 1/24490000)))
    360))
 
 (defn lunar-anomaly [c]
@@ -3673,8 +3673,8 @@
   ;; Willmann-Bell, 2nd edn., 1998, p. 338.
   (mod
    (poly c
-         (deg (list 134.9633964L0 477198.8675055L0
-                    0.0087414L0 1/69699 -1/14712000)))
+         (deg (list 134.9633964 477198.8675055
+                    0.0087414 1/69699 -1/14712000)))
    360))
 
 (defn moon-node [c]
@@ -3685,8 +3685,8 @@
   ;; Willmann-Bell, 2nd edn., 1998, p. 338.
   (mod
    (poly c
-         (deg (list 93.2720950L0 483202.0175233L0
-                    -0.0036539L0 -1/3526000 1/863310000)))
+         (deg (list 93.2720950 483202.0175233
+                    -0.0036539 -1/3526000 1/863310000)))
    360))
 
 (defn lunar-node [date]
@@ -3707,7 +3707,7 @@
         cap-M (solar-anomaly c)
         cap-M-prime (lunar-anomaly c)
         cap-F (moon-node c)
-        cap-E (poly c (list 1 -0.002516L0 -0.0000074L0))
+        cap-E (poly c (list 1 -0.002516 -0.0000074))
         args-lunar-elongation
         (list 0 2 2 0 0 0 2 2 2 2 0 1 0 2 0 0 4 0 4 2 2 1
               1 2 2 4 2 0 2 2 1 2 0 0 2 2 2 4 0 3 2 4 0 2
@@ -3749,11 +3749,11 @@
                          (* z cap-F))))))
         venus (* (deg 3958/1000000)
                  (sin-degrees
-                  (+ (deg 119.75L0) (* c (deg 131.849L0)))))
+                  (+ (deg 119.75) (* c (deg 131.849)))))
         jupiter (* (deg 318/1000000)
                    (sin-degrees
-                    (+ (deg 53.09L0)
-                       (* c (deg 479264.29L0)))))
+                    (+ (deg 53.09)
+                       (* c (deg 479264.29)))))
         flat-earth
         (* (deg 1962/1000000)
            (sin-degrees (- cap-L-prime cap-F)))]
@@ -3776,32 +3776,32 @@
   ;; by Jean Meeus, Willmann-Bell, corrected 2nd edn., 2005.
   (let [n0 24724                       ; Months from RD 0 until j2000.
         k (- n n0)                     ; Months since j2000.
-        c (/ k 1236.85L0)              ; Julian centuries.
+        c (/ k 1236.85)              ; Julian centuries.
         approx (+ j2000
-                  (poly c (list 5.09766L0
+                  (poly c (list 5.09766
                                 (* mean-synodic-month
-                                   1236.85L0)
-                                0.00015437L0
-                                -0.000000150L0
-                                0.00000000073L0)))
-        cap-E (poly c (list 1 -0.002516L0 -0.0000074L0))
+                                   1236.85)
+                                0.00015437
+                                -0.000000150
+                                0.00000000073)))
+        cap-E (poly c (list 1 -0.002516 -0.0000074))
         solar-anomaly
-        (poly c (deg (list 2.5534L0
-                           (* 1236.85L0 29.10535670L0)
-                           -0.0000014L0 -0.00000011L0)))
+        (poly c (deg (list 2.5534
+                           (* 1236.85 29.10535670)
+                           -0.0000014 -0.00000011)))
         lunar-anomaly
-        (poly c (deg (list 201.5643L0 (* 385.81693528L0
-                                         1236.85L0)
-                           0.0107582L0 0.00001238L0
-                           -0.000000058L0)))
+        (poly c (deg (list 201.5643 (* 385.81693528
+                                         1236.85)
+                           0.0107582 0.00001238
+                           -0.000000058)))
         moon-argument                   ; Moon's argument of latitude.
-        (poly c (deg (list 160.7108L0 (* 390.67050284L0
-                                         1236.85L0)
-                           -0.0016118L0 -0.00000227L0
-                           0.000000011L0)))
+        (poly c (deg (list 160.7108 (* 390.67050284
+                                         1236.85)
+                           -0.0016118 -0.00000227
+                           0.000000011)))
         cap-omega                       ; Longitude of ascending node.
-        (poly c (deg (list 124.7746L0 (* -1.56375588L0 1236.85L0)
-                           0.0020672L0 0.00000215L0)))
+        (poly c (deg (list 124.7746 (* -1.56375588 1236.85)
+                           0.0020672 0.00000215)))
         E-factor (list 0 1 0 0 1 1 2 0 0 1 0 1 1 1 0 0 0 0
                        0 0 0 0 0 0)
         solar-coeff (list 0 1 0 0 -1 1 2 0 0 1 0 1 1 -1 2
@@ -3811,16 +3811,16 @@
         moon-coeff (list 0 0 0 2 0 0 0 -2 2 0 0 2 -2 0 0
                          -2 0 -2 2 2 2 -2 0 0)
         sine-coeff
-        (list -0.40720L0 0.17241L0 0.01608L0 0.01039L0
-              0.00739L0 -0.00514L0 0.00208L0
-              -0.00111L0 -0.00057L0 0.00056L0
-              -0.00042L0 0.00042L0 0.00038L0
-              -0.00024L0 -0.00007L0 0.00004L0
-              0.00004L0 0.00003L0 0.00003L0
-              -0.00003L0 0.00003L0 -0.00002L0
-              -0.00002L0 0.00002L0)
+        (list -0.40720 0.17241 0.01608 0.01039
+              0.00739 -0.00514 0.00208
+              -0.00111 -0.00057 0.00056
+              -0.00042 0.00042 0.00038
+              -0.00024 -0.00007 0.00004
+              0.00004 0.00003 0.00003
+              -0.00003 0.00003 -0.00002
+              -0.00002 0.00002)
         correction
-        (+ (* -0.00017L0 (sin-degrees cap-omega))
+        (+ (* -0.00017 (sin-degrees cap-omega))
            (sigma ((v sine-coeff)
                    (w E-factor)
                    (x solar-coeff)
@@ -3832,26 +3832,26 @@
                          (* y lunar-anomaly)
                          (* z moon-argument))))))
         add-const
-        (list 251.88L0 251.83L0 349.42L0 84.66L0
-              141.74L0 207.14L0 154.84L0 34.52L0 207.19L0
-              291.34L0 161.72L0 239.56L0 331.55L0)
+        (list 251.88 251.83 349.42 84.66
+              141.74 207.14 154.84 34.52 207.19
+              291.34 161.72 239.56 331.55)
         add-coeff
-        (list 0.016321L0 26.651886L0
-              36.412478L0 18.206239L0 53.303771L0
-              2.453732L0 7.306860L0 27.261239L0 0.121824L0
-              1.844379L0 24.198154L0 25.513099L0
-              3.592518L0)
+        (list 0.016321 26.651886
+              36.412478 18.206239 53.303771
+              2.453732 7.306860 27.261239 0.121824
+              1.844379 24.198154 25.513099
+              3.592518)
         add-factor
-        (list 0.000165L0 0.000164L0 0.000126L0
-              0.000110L0 0.000062L0 0.000060L0 0.000056L0
-              0.000047L0 0.000042L0 0.000040L0 0.000037L0
-              0.000035L0 0.000023L0)
+        (list 0.000165 0.000164 0.000126
+              0.000110 0.000062 0.000060 0.000056
+              0.000047 0.000042 0.000040 0.000037
+              0.000035 0.000023)
         extra
-        (* 0.000325L0
+        (* 0.000325
            (sin-degrees
             (poly c
-                  (deg (list 299.77L0 132.8475848L0
-                             -0.009173L0)))))
+                  (deg (list 299.77 132.8475848
+                             -0.009173)))))
         additional
         (sigma ((i add-const)
                 (j add-coeff)
@@ -3958,7 +3958,7 @@
         cap-M (solar-anomaly c)
         cap-M-prime (lunar-anomaly c)
         cap-F (moon-node c)
-        cap-E (poly c (list 1 -0.002516L0 -0.0000074L0))
+        cap-E (poly c (list 1 -0.002516 -0.0000074))
         args-lunar-elongation
         (list 0 0 0 2 2 2 2 0 2 0 2 2 2 2 2 2 2 0 4 0 0 0
               1 0 0 0 1 0 4 4 0 4 2 2 2 2 0 2 2 2 2 4 2 2
@@ -4000,10 +4000,10 @@
                          (* z cap-F))))))
         venus (* (deg 175/1000000)
                  (+ (sin-degrees
-                     (+ (deg 119.75L0) (* c (deg 131.849L0))
+                     (+ (deg 119.75) (* c (deg 131.849))
                         cap-F))
                     (sin-degrees
-                     (+ (deg 119.75L0) (* c (deg 131.849L0))
+                     (+ (deg 119.75) (* c (deg 131.849))
                         (- cap-F)))))
         flat-earth
         (+ (* (deg -2235/1000000)
@@ -4014,8 +4014,8 @@
                                   (+ cap-L-prime cap-M-prime))))
         extra (* (deg 382/1000000)
                  (sin-degrees
-                  (+ (deg 313.45L0)
-                     (* c (deg 481266.484L0)))))]
+                  (+ (deg 313.45)
+                     (* c (deg 481266.484)))))]
     (+ beta venus flat-earth extra)))
 
 (defn lunar-altitude [tee location]
@@ -4059,7 +4059,7 @@
         cap-M (solar-anomaly c)
         cap-M-prime (lunar-anomaly c)
         cap-F (moon-node c)
-        cap-E (poly c (list 1 -0.002516L0 -0.0000074L0))
+        cap-E (poly c (list 1 -0.002516 -0.0000074))
         args-lunar-elongation
         (list 0 2 2 0 0 0 2 2 2 2 0 1 0 2 0 0 4 0 4 2 2 1
               1 2 2 4 2 0 2 2 1 2 0 0 2 2 2 4 0 3 2 4 0 2
@@ -4209,7 +4209,7 @@
 (def tehran
   ;; TYPE location
   ;; Location of Tehran, Iran.
-  (location (deg 35.68L0) (deg 51.42L0)
+  (location (deg 35.68) (deg 51.42)
             (mt 1100) (hr (+ 3 1/2))))
 
 (defn midday-in-tehran [date]
@@ -4472,7 +4472,7 @@
 (def bahai-location
   ;; TYPE location
   ;; Location of Tehran for astronomical Baha'i calendar.
-  (location (deg 35.696111L0) (deg 51.423056L0)
+  (location (deg 35.696111) (deg 51.423056)
             (mt 0) (hr (+ 3 1/2))))
 
 (defn bahai-sunset [date]
@@ -4933,7 +4933,7 @@
                                         ; month
                m12 (chinese-new-moon-before m))))
         elapsed-years              ; Approximate since the epoch
-        (floor (+ 1.5L0            ; 18 months (because of truncation)
+        (floor (+ 1.5            ; 18 months (because of truncation)
                   (- (/ month 12)) ; after at start of year
                   (/ (- date chinese-epoch)
                      mean-tropical-year)))
@@ -5151,7 +5151,7 @@
   (let [year (gregorian-year-from-fixed (floor tee))]
     (if (< year 1888)
         ;; Tokyo (139 deg 46 min east) local time
-        (location (deg 35.7L0) (angle 139 46 0)
+        (location (deg 35.7) (angle 139 46 0)
                   (mt 24) (hr (+ 9 143/450)))
                                         ; Longitude 135 time zone
       (location (deg 35) (deg 135) (mt 0) (hr 9)))))
@@ -5233,7 +5233,7 @@
   ;; $entry$ is an angle given as a multiplier of 225'.
   (let [exact (* 3438 (sin-degrees
                        (* entry (angle 0 225 0))))
-        error (* 0.215L0 (sign exact)
+        error (* 0.215 (sign exact)
                  (sign (- (abs exact) 1716)))]
     (/ (round (+ exact error)) 3438)))
 
@@ -6264,7 +6264,7 @@
 (def babylon
   ;; TYPE location
   ;; Location of Babylon.
-  (location (deg 32.4794L0) (deg 44.4328L0)
+  (location (deg 32.4794) (deg 44.4328)
             (mt 26) (hr (+ 3 1/2))))
 
 (def babylonian-epoch 
@@ -6340,7 +6340,7 @@
                      mean-synodic-month)))
         new-year (babylonian-new-month-on-or-before
                   (+ approx 15))
-        month1 (inc (round (/ (- crescent new-year) 29.5L0)))
+        month1 (inc (round (/ (- crescent new-year) 29.5)))
         special (= (mod year 19) 18)
         leap (if special (= month1 7) (= month1 13))
         month (if (or leap (and special (> month1 6)))
@@ -6383,7 +6383,7 @@
   ;; TYPE location
   ;; Sample location for Observational Islamic calendar
   ;; (Cairo, Egypt).
-  (location (deg 30.1L0) (deg 31.3L0) (mt 200) (hr 2)))
+  (location (deg 30.1) (deg 31.3) (mt 200) (hr 2)))
 
 (defn fixed-from-observational-islamic [i-date]
   ;; TYPE islamic-date -> fixed-date
@@ -6418,12 +6418,12 @@
 (def jerusalem
   ;; TYPE location
   ;; Location of Jerusalem.
-  (location (deg 31.78L0) (deg 35.24L0) (mt 740) (hr 2)))
+  (location (deg 31.78) (deg 35.24) (mt 740) (hr 2)))
 
 (def acre
   ;; TYPE location
   ;; Location of Acre.
-  (location (deg 32.94L0) (deg 35.09L0) (mt 22) (hr 2)))
+  (location (deg 32.94) (deg 35.09) (mt 22) (hr 2)))
 
 (defn astronomical-easter [g-year]
   ;; TYPE gregorian-year -> fixed-date
@@ -6495,7 +6495,7 @@
   ;; TYPE location
   ;; Sample location for Observational Hebrew calendar
   ;; (Haifa, Israel).
-  (location (deg 32.82L0) (deg 35) (mt 0) (hr 2)))
+  (location (deg 32.82) (deg 35) (mt 0) (hr 2)))
 
 (defn observational-hebrew-first-of-nisan [g-year]
   ;; TYPE gregorian-year -> fixed-date
@@ -6526,7 +6526,7 @@
                 (+ start 60))
         new-year (observational-hebrew-first-of-nisan g-year)
         midmonth                        ; Middle of given month.
-        (+ new-year (round (* 29.5L0 (dec month))) 15)]
+        (+ new-year (round (* 29.5 (dec month))) 15)]
     (+ (phasis-on-or-before ; First day of month.
         midmonth hebrew-location)
        day -1)))
@@ -6543,7 +6543,7 @@
                    (observational-hebrew-first-of-nisan
                     (dec g-year))
                    ny)
-        month (inc (round (/ (- crescent new-year) 29.5L0)))
+        month (inc (round (/ (- crescent new-year) 29.5)))
         year (+ (standard-year (hebrew-from-fixed new-year))
                 (if (>= month tishri) 1 0))
         day (- date crescent -1)]
@@ -6623,7 +6623,7 @@
                    (observational-hebrew-first-of-nisan
                     (dec g-year))
                    ny)
-        month (inc (round (/ (- moon new-year) 29.5L0)))
+        month (inc (round (/ (- moon new-year) 29.5)))
         year (+ (standard-year (hebrew-from-fixed new-year))
                 (if (>= month tishri) 1 0))
         day (- date-prime moon
@@ -6644,7 +6644,7 @@
                 (+ start 60))
         new-year (observational-hebrew-first-of-nisan g-year)
         midmonth                        ; Middle of given month.
-        (+ new-year (round (* 29.5L0 (dec month))) 15)
+        (+ new-year (round (* 29.5 (dec month))) 15)
         moon (phasis-on-or-before       ; First day of month.
               midmonth hebrew-location)
         date (+ moon day -1)]
@@ -6713,8 +6713,8 @@
         (samaritan-new-moon-at-or-before
          (samaritan-noon date))
         new-year (samaritan-new-year-on-or-before moon)
-        month (inc (round (/ (- moon new-year) 29.5L0)))
-        year (+ (round (/ (- new-year samaritan-epoch) 365.25L0))
+        month (inc (round (/ (- moon new-year) 29.5)))
+        year (+ (round (/ (- new-year samaritan-epoch) 365.25))
                 (ceiling (- month 5) 8))
         day (- date moon -1)]
     (hebrew-date year month day)))     
@@ -6727,10 +6727,10 @@
         year (standard-year s-date)
         ny (samaritan-new-year-on-or-before
             (floor (+ samaritan-epoch 50
-                      (* 365.25L0 (- year 
+                      (* 365.25 (- year 
                                      (ceiling (- month 5) 8))))))
         nm (samaritan-new-moon-at-or-before 
-            (+ ny (* 29.5L0 (dec month)) 15))]
+            (+ ny (* 29.5 (dec month)) 15))]
     (+ nm day -1)))
 
 ;;;;; NEW move into place
@@ -6785,7 +6785,7 @@
   ;; Topocentric lunar semi-diameter at moment $tee$ and $location$.
   (let [h (lunar-altitude tee location)
         p (lunar-parallax tee location)]
-    (* 0.27245L0 p (inc (* (sin-degrees h) (sin-degrees p))))))
+    (* 0.27245 p (inc (* (sin-degrees h) (sin-degrees p))))))
 
 (defn shaukat-criterion [date location]
   ;; TYPE (fixed-date location) -> boolean
@@ -6797,8 +6797,8 @@
         h (lunar-altitude tee location)
         cap-ARCL (arc-of-light tee)]
     (and (< new phase first-quarter)
-         (<= (deg 10.6L0) cap-ARCL (deg 90))
-         (> h (deg 4.1L0)))))
+         (<= (deg 10.6) cap-ARCL (deg 90))
+         (> h (deg 4.1)))))
 
 (defn yallop-criterion [date location]
   ;; TYPE (fixed-date location) -> boolean
@@ -6812,9 +6812,9 @@
         cap-ARCL (arc-of-light tee)
         cap-W (* cap-D (- 1 (cos-degrees cap-ARCL)))
         cap-ARCV (arc-of-vision tee location)
-        e -0.14L0         ; Crescent visible under perfect conditions.
+        e -0.14         ; Crescent visible under perfect conditions.
         q1 (poly cap-W
-                 (list 11.8371L0 -6.3226L0 0.7319L0 -0.1018L0))]
+                 (list 11.8371 -6.3226 0.7319 -0.1018))]
     (and (< new phase first-quarter)
          (> cap-ARCV (+ q1 e)))))
 
@@ -6823,7 +6823,7 @@
   ;; Best viewing time (UT) in the evening.
   ;; Simple version.
   (let [dark                        ; Best viewing time prior evening.
-        (dusk date location (deg 4.5L0))
+        (dusk date location (deg 4.5))
         best (if (equal dark bogus)
                (inc date)                ; An arbitrary time.
                dark)]
