@@ -3234,7 +3234,7 @@
   ;; Returns bogus if depression angle is not reached.
   (let [tee (approx-moment-of-depression
              approx location alpha early?)]
-    (if (equal tee bogus)
+    (if (= tee bogus)
         bogus
       (if (< (abs (- approx tee))
              (sec 30))
@@ -3258,7 +3258,7 @@
   ;; Returns bogus if there is no dawn on $date$.
   (let [result (moment-of-depression
                 (+ date (hr 6)) location alpha morning)]
-    (if (equal result bogus)
+    (if (= result bogus)
         bogus
       (standard-from-local result location))))
 
@@ -3269,7 +3269,7 @@
   ;; Returns bogus if there is no dusk on $date$.
   (let [result (moment-of-depression
                 (+ date (hr 18)) location alpha evening)]
-    (if (equal result bogus)
+    (if (= result bogus)
         bogus
       (standard-from-local result location))))
 
@@ -3316,8 +3316,8 @@
   ;; TYPE (fixed-date location) -> real
   ;; Length of daytime temporal hour on fixed $date$ at $location$.
   ;; Returns bogus if there no sunrise or sunset on $date$.
-  (if (or (equal (sunrise date location) bogus)
-          (equal (sunset date location) bogus))
+  (if (or (= (sunrise date location) bogus)
+          (= (sunset date location) bogus))
       bogus
     (/ (- (sunset date location)
           (sunrise date location))
@@ -3327,8 +3327,8 @@
   ;; TYPE (fixed-date location) -> real
   ;; Length of nighttime temporal hour on fixed $date$ at $location$.
   ;; Returns bogus if there no sunrise or sunset on $date$.
-  (if (or (equal (sunrise (inc date) location) bogus)
-          (equal (sunset date location) bogus))
+  (if (or (= (sunrise (inc date) location) bogus)
+          (= (sunset date location) bogus))
       bogus
     (/ (- (sunrise (inc date) location)
           (sunset date location))
@@ -3346,7 +3346,7 @@
                 (nighttime-temporal-hour (dec date) location)
                 :true                      ; this evening
                 (nighttime-temporal-hour date location))]
-    (cond (equal h bogus) bogus
+    (cond (= h bogus) bogus
           (<= 6 hour 18); daytime today
           (+ (sunrise date location) (* (- hour 6) h))
           (< hour 6)    ; early this morning
@@ -5077,7 +5077,7 @@
         prior-new-moon
         (if                             ; If the months match...
             (and (= month (chinese-month d))
-                 (equal leap (chinese-leap d)))
+                 (= leap (chinese-leap d)))
             p          ; ...that's the right month
             ;; otherwise, there was a prior leap month that
             ;; year, so we want the next month
@@ -6027,7 +6027,7 @@
              (or (< month1 month2)
                  (and (= month1 month2)
                       (or (and leap1 (not leap2))
-                          (and (equal leap1 leap2)
+                          (and (= leap1 leap2)
                                (or (< day1 day2)
                                    (and (= day1 day2)
                                         (or (not leap-day1)
@@ -6368,8 +6368,8 @@
   ;; Returns bogus if there is no sunset on $date$.
   (let [sun (sunset date location)
         moon (moonset date location)]
-    (cond (equal sun bogus) bogus
-          (equal moon bogus) (hr 24) ; Arbitrary.
+    (cond (= sun bogus) bogus
+          (= moon bogus) (hr 24) ; Arbitrary.
           :true (- moon sun))))
 
 (def babylon
@@ -6935,7 +6935,7 @@
   ;; Simple version.
   (let [dark                        ; Best viewing time prior evening.
         (dusk date location (deg 4.5))
-        best (if (equal dark bogus)
+        best (if (= dark bogus)
                (inc date)                ; An arbitrary time.
                dark)]
     (universal-from-standard best location)))
@@ -6947,7 +6947,7 @@
   (let [sun (sunset date location)
         moon (moonset date location)
         best                        ; Best viewing time prior evening.
-        (if (or (equal sun bogus) (equal moon bogus))
+        (if (or (= sun bogus) (= moon bogus))
           (inc date)                     ; An arbitrary time.
           (+ (* 5/9 sun) (* 4/9 moon)))]
     (universal-from-standard best location)))
