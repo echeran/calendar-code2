@@ -106,7 +106,7 @@
           (loop [~index ~initial
                  exprs# []]
             (if-not ~condition
-              exprs
+              exprs#
               (recur (inc ~index)
                      (conj exprs# ~expression))))))
 
