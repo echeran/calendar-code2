@@ -49,6 +49,26 @@
 
 (def evenp even?)
 
+(defn cos [x]
+  (Math/cos x))
+
+(defn sin [x]
+  (Math/sin x))
+
+(defn tan [x]
+  (Math/tan x))
+
+(defn asin [x]
+  (Math/asin x))
+
+(defn acos [x]
+  (Math/acos x))
+
+(defn atan [x]
+  (Math/atan x))
+
+(def PI Math/PI)
+
 ;; (def true
 ;;   ;; TYPE boolean
 ;;   ;; Constant representing true.
@@ -2941,22 +2961,22 @@
 (defn degrees-from-radians [theta]
   ;; TYPE radian -> angle
   ;; Convert angle $theta$ from radians to degrees.
-  (mod (/ theta Math/PI 1/180) 360))
+  (mod (/ theta PI 1/180) 360))
 
 (defn radians-from-degrees [theta]
   ;; TYPE real -> radian
   ;; Convert angle $theta$ from degrees to radians.
-  (* (mod theta 360) Math/PI 1/180))
+  (* (mod theta 360) PI 1/180))
 
 (defn sin-degrees [theta]
   ;; TYPE angle -> amplitude
   ;; Sine of $theta$ (given in degrees).
-  (Math/sin (radians-from-degrees theta)))
+  (sin (radians-from-degrees theta)))
 
 (defn cos-degrees [theta]
   ;; TYPE angle -> amplitude
   ;; Cosine of $theta$ (given in degrees).
-  (Math/cos (radians-from-degrees theta)))
+  (cos (radians-from-degrees theta)))
 
 (defn tan-degrees [theta]
   ;; TYPE angle -> real
@@ -3539,7 +3559,7 @@
         varepsilon (obliquity tee)
         y (expt (tan-degrees (/ varepsilon 2)) 2)
         equation
-        (* (/ 1 2 Math/PI)
+        (* (/ 1 2 PI)
            (+ (* y (sin-degrees (* 2 lambda)))
               (* -2 eccentricity (sin-degrees anomaly))
               (* 4 eccentricity y (sin-degrees anomaly)
