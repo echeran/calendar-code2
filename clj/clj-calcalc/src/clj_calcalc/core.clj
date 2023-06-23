@@ -177,17 +177,18 @@
   ;; TYPE  ((real real)->boolean)) -> real
   ;; Bisection search for $x$ in [$lo$..$hi$] such that
   ;; $end$ holds.  $test$ determines when to go left.
-  (let [left (gensym)]
-    `(loop [~x (/ (+ ~h ~l) 2)
-            ~left false
-            ~l ~lo
-            ~h ~hi]
-       (if (~end (/ (+ ~h ~l) 2))
+  `(loop [~l ~lo
+          ~h ~hi
+          ~x (/ (+ ~h ~l) 2)]
+     (let [left# ~test]
+       (if ~end
          ~x
-         (recur (/ (+ ~h ~l) 2)
-                ~test
-                (if ~left ~l ~x)
-                (if ~left ~x ~h))))))
+         (let [new-l# (if left# ~l ~x)
+               new-h# (if left# ~x ~h)
+               new-x# (/ (+ new-h# new-l#) 2)]
+           (recur new-l#
+                  new-h#
+                  new-x#))))))
 
 (defmacro invert-angular [f y r]
   ;; TYPE (real->angle real interval) -> real
