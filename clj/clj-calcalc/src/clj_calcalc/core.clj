@@ -2865,15 +2865,15 @@
         dasawara (bali-dasawara b-date)
         a5                              ; Position in 5-day subcycle.
         (dec pancawara)
-        (a6                             ; Position in 6-day subcycle.
-         (dec sadwara))
-        (b7                             ; Position in 7-day subcycle.
-         (dec saptawara))
-        (b35                            ; Position in 35-day subcycle.
-         (mod (+ a5 14 (* 15 (- b7 a5))) 35))
-        (days                           ; Position in full cycle.
-         (+ a6 (* 36 (- b35 a6))))
-        (cap-Delta (bali-day-from-fixed (rd 0)))]
+        a6                             ; Position in 6-day subcycle.
+        (dec sadwara)
+        b7                             ; Position in 7-day subcycle.
+        (dec saptawara)
+        b35                            ; Position in 35-day subcycle.
+        (mod (+ a5 14 (* 15 (- b7 a5))) 35)
+        days                           ; Position in full cycle.
+        (+ a6 (* 36 (- b35 a6)))
+        cap-Delta (bali-day-from-fixed (rd 0))]
     (- date (mod (- (+ date cap-Delta) days) 210))))
 
 (defn kajeng-keliwon [g-year]
