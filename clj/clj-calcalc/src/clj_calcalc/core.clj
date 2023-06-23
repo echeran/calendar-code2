@@ -3584,6 +3584,28 @@
                  (sin-degrees (* 2 anomaly)))))]
     (* (sign equation) (min (abs equation) (hr 12.0)))))
 
+(defn nutation [tee]
+  ;; TYPE moment -> circle
+  ;; Longitudinal nutation at moment $tee$.
+  (let [c                               ; moment in Julian centuries
+        (julian-centuries tee)
+        cap-A (poly c (deg (list 124.90 -1934.134
+                                 0.002063)))
+        cap-B (poly c (deg (list 201.11 72001.5377
+                                 0.00057)))]
+    (+ (* (deg -0.004778) (sin-degrees cap-A))
+       (* (deg -0.0003667) (sin-degrees cap-B)))))
+
+(defn aberration [tee]
+  ;; TYPE moment -> circle
+  ;; Aberration at moment $tee$.
+  (let [c                               ; moment in Julian centuries
+        (julian-centuries tee)]
+    (- (* (deg 0.0000974)
+          (cos-degrees
+           (+ (deg 177.63) (* (deg 35999.01848) c))))
+       (deg 0.005575))))
+
 (defn solar-longitude [tee]
   ;; TYPE moment -> season
   ;; Longitude of sun at moment $tee$.
@@ -3635,28 +3657,6 @@
                      (* x (sin-degrees (+ y (* z c)))))))]
     (mod (+ lambda (aberration tee) (nutation tee))
          360)))
-
-(defn nutation [tee]
-  ;; TYPE moment -> circle
-  ;; Longitudinal nutation at moment $tee$.
-  (let [c                               ; moment in Julian centuries
-        (julian-centuries tee)
-        cap-A (poly c (deg (list 124.90 -1934.134
-                                 0.002063)))
-        cap-B (poly c (deg (list 201.11 72001.5377
-                                 0.00057)))]
-    (+ (* (deg -0.004778) (sin-degrees cap-A))
-       (* (deg -0.0003667) (sin-degrees cap-B)))))
-
-(defn aberration [tee]
-  ;; TYPE moment -> circle
-  ;; Aberration at moment $tee$.
-  (let [c                               ; moment in Julian centuries
-        (julian-centuries tee)]
-    (- (* (deg 0.0000974)
-          (cos-degrees
-           (+ (deg 177.63) (* (deg 35999.01848) c))))
-       (deg 0.005575))))
 
 (defn solar-longitude-after [lambda tee]
   ;; TYPE (season moment) -> moment
