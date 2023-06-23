@@ -20,6 +20,21 @@
 (defn fifth [coll]
   (nth coll 4))
 
+(defn sixth [coll]
+  (nth coll 5))
+
+(defn seventh [coll]
+  (nth coll 6))
+
+(defn eighth [coll]
+  (nth coll 7))
+
+(defn ninth [coll]
+  (nth coll 8))
+
+(defn tenth [coll]
+  (nth coll 9))
+
 (defmacro length [coll]
   `(count ~coll))
 
@@ -28,6 +43,11 @@
 
 (defmacro member [x coll]
   `(boolean (some #{~x} ~coll)))
+
+(defn ceiling [x]
+  (Math/ceil x))
+
+(def evenp even?)
 
 ;; (def true
 ;;   ;; TYPE boolean
