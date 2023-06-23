@@ -5519,6 +5519,8 @@
 ;; Add a forward declaration for now until dependencies can be figured
 ;; out and code can be detangled
 (declare hindu-sunrise)
+(declare hindu-daily-motion)
+(declare hindu-tropical-longitude)
 
 (defn hindu-solar-from-fixed [date]
   ;; TYPE fixed-date -> hindu-solar-date
