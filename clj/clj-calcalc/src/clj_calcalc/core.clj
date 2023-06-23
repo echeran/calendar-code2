@@ -93,16 +93,17 @@
                     (< (mod (- (,f x) ,y) 360) (deg 180))
                     (< (- u l) ,varepsilon))))
 
-(defmacro sigma (list body)
+(defmacro sigma [list body]
   ;; TYPE (list-of-pairs (list-of-reals->real))
   ;; TYPE  -> real
   ;; $list$ is of the form ((i1 l1)...(in ln)).
   ;; Sum of $body$ for indices i1...in
   ;; running simultaneously thru lists l1...ln.
-  `(apply '+ (mapcar (function (lambda
-                                 ,(mapcar 'car list)
-                                 ,body))
-                     ,@(mapcar 'cadr list))))
+  ;;
+  ;; list is now a typical Clojure binding vector
+  `(apply + (map (fn ~(vec (map first (partition 2 list)))
+                   ~body)
+                 ~@(map second (partition 2 list)))))
 
 (defn poly [x a]
   ;; TYPE (real list-of-reals) -> real
@@ -401,8 +402,8 @@
   ;; TYPE egyptian-date -> fixed-date
   ;; Fixed date of Egyptian date $e-date$.
   (+ egyptian-epoch
-     (sigma ((a (list 365 30 1))
-             (e-date e-date))
+     (sigma [a (list 365 30 1)
+             e-date e-date]
             (* a (dec e-date)))))
 
 (defn egyptian-from-fixed [date]
@@ -723,8 +724,8 @@
     (+ (dec gregorian-epoch)
        -306        ; Days in March...December.
        (* 365 y-prime); Ordinary days.
-       (sigma ((y (to-radix y-prime (list 4 25 4)))
-               (a (list 97 24 1 0)))
+       (sigma [y (to-radix y-prime (list 4 25 4))
+               a (list 97 24 1 0)]
               (* y a))
        (quotient   ; Days in prior months.
         (+ (* 3 m-prime) 2)
@@ -765,8 +766,8 @@
         start                           ; start of next year
         (+ gregorian-epoch
            (* 365 approx)
-           (sigma ((y (to-radix approx (list 4 25 4)))
-                   (a (list 97 24 1 0)))
+           (sigma [y (to-radix approx (list 4 25 4))
+                   a (list 97 24 1 0)]
                   (* y a)))]
     (if (< date start)
         approx
@@ -1004,8 +1005,8 @@
   ;; TYPE icelandic-year -> fixed-date
   ;; Fixed date of start of Icelandic year $i-year$.
   (let [apr19 (+ icelandic-epoch (* 365 (dec i-year))
-                 (sigma ((y (to-radix i-year (list 4 25 4)))
-                         (a (list 97 24 1 0)))
+                 (sigma [y (to-radix i-year (list 4 25 4))
+                         a (list 97 24 1 0)]
                         (* y a)))]
     (kday-on-or-after thursday apr19)))
 
@@ -3511,9 +3512,9 @@
         (+ (deg 282.7771834)
            (* (deg 36000.76953744) c)
            (* (deg 0.000005729577951308232)
-              (sigma ((x coefficients)
-                      (y addends)
-                      (z multipliers))
+              (sigma [x coefficients
+                      y addends
+                      z multipliers]
                      (* x (sin-degrees (+ y (* z c)))))))]
     (mod (+ lambda (aberration tee) (nutation tee))
          360)))
@@ -3736,11 +3737,11 @@
               327 -323 299 294)
         correction
         (* (deg 1/1000000)
-           (sigma ((v sine-coeff)
-                   (w args-lunar-elongation)
-                   (x args-solar-anomaly)
-                   (y args-lunar-anomaly)
-                   (z args-moon-node))
+           (sigma [v sine-coeff
+                   w args-lunar-elongation
+                   x args-solar-anomaly
+                   y args-lunar-anomaly
+                   z args-moon-node]
                   (* v (expt cap-E (abs x))
                      (sin-degrees
                       (+ (* w cap-D)
@@ -3821,11 +3822,11 @@
               -0.00002 0.00002)
         correction
         (+ (* -0.00017 (sin-degrees cap-omega))
-           (sigma ((v sine-coeff)
-                   (w E-factor)
-                   (x solar-coeff)
-                   (y lunar-coeff)
-                   (z moon-coeff))
+           (sigma [v sine-coeff
+                   w E-factor
+                   x solar-coeff
+                   y lunar-coeff
+                   z moon-coeff]
                   (* v (expt cap-E w)
                      (sin-degrees
                       (+ (* x solar-anomaly)
@@ -3853,9 +3854,9 @@
                   (deg (list 299.77 132.8475848
                              -0.009173)))))
         additional
-        (sigma ((i add-const)
-                (j add-coeff)
-                (l add-factor))
+        (sigma [i add-const
+                j add-coeff
+                l add-factor]
                (* l (sin-degrees (+ i (* j k)))))]
     (universal-from-dynamical
      (+ approx correction extra additional))))
@@ -3987,11 +3988,11 @@
               -177 176 166 -164 132 -119 115 107)
         beta
         (* (deg 1/1000000)
-           (sigma ((v sine-coeff)
-                   (w args-lunar-elongation)
-                   (x args-solar-anomaly)
-                   (y args-lunar-anomaly)
-                   (z args-moon-node))
+           (sigma [v sine-coeff
+                   w args-lunar-elongation
+                   x args-solar-anomaly
+                   y args-lunar-anomaly
+                   z args-moon-node]
                   (* v (expt cap-E (abs x))
                      (sin-degrees
                       (+ (* w cap-D)
@@ -4087,11 +4088,11 @@
               -1117 -1571 -1739 0 -4421 0 0 0 0 1165 0 0
               8752)
         correction
-        (sigma ((v cosine-coeff)
-                (w args-lunar-elongation)
-                (x args-solar-anomaly)
-                (y args-lunar-anomaly)
-                (z args-moon-node))
+        (sigma [v cosine-coeff
+                w args-lunar-elongation
+                x args-solar-anomaly
+                y args-lunar-anomaly
+                z args-moon-node]
                (* v (expt cap-E (abs x))
                   (cos-degrees
                    (+ (* w cap-D)
