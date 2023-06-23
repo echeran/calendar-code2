@@ -3099,6 +3099,14 @@
    (universal-from-standard tee_rom-s location)
    location))
 
+
+;; Add a forward declaration for now until dependencies can be figured
+;; out and code can be detangled
+(declare equation-of-time)
+(declare dynamical-from-universal)
+(declare j2000)
+(declare solar-longitude)
+
 (defn apparent-from-local [tee_ell location]
   ;; TYPE (moment location) -> moment
   ;; Sundial time from local time $tee_ell$ at $location$.
