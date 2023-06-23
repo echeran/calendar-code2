@@ -2860,22 +2860,22 @@
 (defn degrees-from-radians [theta]
   ;; TYPE radian -> angle
   ;; Convert angle $theta$ from radians to degrees.
-  (mod (/ theta pi 1/180) 360))
+  (mod (/ theta Math/PI 1/180) 360))
 
 (defn radians-from-degrees [theta]
   ;; TYPE real -> radian
   ;; Convert angle $theta$ from degrees to radians.
-  (* (mod theta 360) pi 1/180))
+  (* (mod theta 360) Math/PI 1/180))
 
 (defn sin-degrees [theta]
   ;; TYPE angle -> amplitude
   ;; Sine of $theta$ (given in degrees).
-  (sin (radians-from-degrees theta)))
+  (Math/sin (radians-from-degrees theta)))
 
 (defn cos-degrees [theta]
   ;; TYPE angle -> amplitude
   ;; Cosine of $theta$ (given in degrees).
-  (cos (radians-from-degrees theta)))
+  (Math/cos (radians-from-degrees theta)))
 
 (defn tan-degrees [theta]
   ;; TYPE angle -> real
@@ -3458,7 +3458,7 @@
         varepsilon (obliquity tee)
         y (expt (tan-degrees (/ varepsilon 2)) 2)
         equation
-        (* (/ 1 2 pi)
+        (* (/ 1 2 Math/PI)
            (+ (* y (sin-degrees (* 2 lambda)))
               (* -2 eccentricity (sin-degrees anomaly))
               (* 4 eccentricity y (sin-degrees anomaly)
