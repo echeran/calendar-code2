@@ -8,6 +8,8 @@
 (declare autumn)
 (declare deg)
 (declare hr)
+(declare begin)
+(declare end)
 
 ;;;; Section: Basic Code
 
@@ -3444,6 +3446,7 @@
 ;; Add a forward declaration for now until dependencies can be figured
 ;; out and code can be detangled
 (declare ephemeris-correction)
+(declare sidereal-start)
 
 (defn universal-from-dynamical [tee]
   ;; TYPE moment -> moment
