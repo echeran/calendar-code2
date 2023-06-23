@@ -939,13 +939,6 @@
   ;; $g-year$ (the first Sunday after January 1).
   (first-kday sunday (gregorian-date g-year january 2)))
 
-(defn unlucky-fridays [g-year]
-  ;; TYPE gregorian-year -> list-of-fixed-dates
-  ;; List of Fridays within Gregorian year $g-year$
-  ;; that are day 13 of Gregorian months.
-  (unlucky-fridays-in-range
-   (gregorian-year-range g-year)))
-
 (defn unlucky-fridays-in-range [range]
   ;; TYPE range -> list-of-fixed-dates
   ;; List of Fridays within $range$ of dates
@@ -962,6 +955,13 @@
          (unlucky-fridays-in-range
           (interval (inc fri) b)))
       nil)))
+
+(defn unlucky-fridays [g-year]
+  ;; TYPE gregorian-year -> list-of-fixed-dates
+  ;; List of Fridays within Gregorian year $g-year$
+  ;; that are day 13 of Gregorian months.
+  (unlucky-fridays-in-range
+   (gregorian-year-range g-year)))
 
 
 ;;;; Section: ISO Calendar
