@@ -4,11 +4,14 @@
 
 ;;;; Section: Basic Code
 
-(defmacro third [coll]
-  `(nth ~coll 2))
+(defn third [coll]
+  (nth coll 2))
 
-(defmacro fourth [coll]
-  `(nth ~coll 3))
+(defn fourth [coll]
+  (nth coll 3))
+
+(defn fifth [coll]
+  (nth coll 4))
 
 (defmacro length [coll]
   `(count ~coll))
