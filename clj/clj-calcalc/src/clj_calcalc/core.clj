@@ -219,8 +219,8 @@
   ;; TYPE  -> list-of-reals
   ;; The radix notation corresponding to $x$
   ;; with base $b$ for whole part and $c$ for fraction.
-  (if (null c)
-      (if (null b)
+  (if (empty? c)
+      (if (empty? b)
           (list x)
         (append (to-radix (quotient x (nth (dec (length b)) b))
                           (butlast b) nil)
@@ -318,7 +318,7 @@
   ;; TYPE list-of-moments -> list-of-fixed-dates
   ;; List of fixed dates corresponding to list $ell$
   ;; of moments.
-  (if (equal ell nil)
+  (if (empty? ell)
       nil
     (append (list (fixed-from-moment (first ell)))
             (list-of-fixed-from-moments (rest ell)))))
@@ -351,7 +351,7 @@
 (defn list-range [ell range]
   ;; TYPE (list-of-moments interval) -> list-of-moments
   ;; Those moments in list $ell$ that occur in $range$.
-  (if (equal ell nil)
+  (if (empty? ell)
       nil
       (let [r (list-range (rest ell) range)]
         (if (in-range? (first ell) range)
@@ -1949,7 +1949,7 @@
   ;; List of fixed date of Birkath ha-Hama occurring in
   ;; Gregorian year $g-year$, if it occurs.
   (let [dates (coptic-in-gregorian 7 30 g-year)]
-    (if (and (not (equal dates nil))
+    (if (and (not (empty? dates))
              (= (mod (standard-year
                       (coptic-from-fixed (first dates)))
                      28)
@@ -1996,7 +1996,7 @@
   (let [cap-Y (+ 365 (hr 6))            ; year
         season (+ spring (* (hr 6) (/ (deg 360) cap-Y)))
         moments (samuel-season-in-gregorian season g-year)]
-    (if (and (not (equal moments nil))
+    (if (and (not (empty? moments))
              (= (day-of-week-from-fixed (first moments)) 
                 wednesday)
              (= (time-from-moment (first moments))
@@ -2143,7 +2143,7 @@
 (defn shift-days [l cap-Delta]
   ;; TYPE (list-of-weekdays integer) -> list-of-weekdays
   ;; Shift each weekday on list $l$ by $cap-Delta$ days
-  (if (equal l nil)
+  (if (empty? l)
       nil
     (append (list (mod (+ (first l) cap-Delta) 7))
             (shift-days (rest l) cap-Delta))))
