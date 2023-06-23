@@ -310,9 +310,9 @@
   ;; TYPE real -> {-1,0,+1}
   ;; Sign of $y$.
   (cond
-   ((< y 0) -1)
-   ((> y 0) +1)
-   (t 0)))
+   (< y 0) -1
+   (> y 0) +1
+   :true 0))
 
 (defn list-of-fixed-from-moments [ell]
   ;; TYPE list-of-moments -> list-of-fixed-dates
@@ -816,13 +816,13 @@
   ;; $g-date$.  If $n$<0, return the $n$-th $k$-day on or
   ;; before $g-date$.  If $n$=0 return bogus.  A $k$-day of
   ;; 0 means Sunday, 1 means Monday, and so on.
-  (cond ((> n 0)
-         (+ (* 7 n)
-            (kday-before k (fixed-from-gregorian g-date))))
-        ((< n 0)
-         (+ (* 7 n)
-            (kday-after k (fixed-from-gregorian g-date))))
-        (t bogus)))
+  (cond (> n 0)
+        (+ (* 7 n)
+           (kday-before k (fixed-from-gregorian g-date)))
+        (< n 0)
+        (+ (* 7 n)
+           (kday-after k (fixed-from-gregorian g-date)))
+        :true bogus))
 
 (defn first-kday [k g-date]
   ;; TYPE (day-of-week gregorian-date) -> fixed-date
@@ -1072,14 +1072,14 @@
         year (icelandic-year i-date)
         season (icelandic-season i-date)
         midsummer (- (icelandic-winter year) 90)
-        start (cond ((= season winter)
-                     (icelandic-winter year))
-                    ((>= date midsummer)
-                     (- midsummer 90))
-                    ((< date (+ (icelandic-summer year) 90))
-                     (icelandic-summer year))
-                    (t                  ; Epagomenae.
-                     midsummer))]
+        start (cond (= season winter)
+                    (icelandic-winter year)
+                    (>= date midsummer)
+                    (- midsummer 90)
+                    (< date (+ (icelandic-summer year) 90))
+                    (icelandic-summer year)
+                    :true                  ; Epagomenae.
+                    midsummer)]
     (inc (quotient (- date start) 30))))
 
 
@@ -1222,14 +1222,14 @@
         month (roman-month r-date)
         year (roman-year r-date)]
     (+ (cond
-        ((= event kalends)
-         (fixed-from-julian (julian-date year month 1)))
-        ((= event nones)
-         (fixed-from-julian
-          (julian-date year month (nones-of-month month))))
-        ((= event ides)
-         (fixed-from-julian
-          (julian-date year month (ides-of-month month)))))
+         (= event kalends)
+         (fixed-from-julian (julian-date year month 1))
+        (= event nones)
+        (fixed-from-julian
+         (julian-date year month (nones-of-month month)))
+        (= event ides)
+        (fixed-from-julian
+         (julian-date year month (ides-of-month month))))
        (- count)
        (if (and (julian-leap-year? year)
                 (= month march)
@@ -1258,26 +1258,26 @@
                   (roman-date year-prime month-prime
                               kalends 1 false))]
     (cond
-     ((= day 1) (roman-date year month kalends 1 false))
-     ((<= day (nones-of-month month))
-      (roman-date year month nones
-                  (inc (- (nones-of-month month) day)) false))
-     ((<= day (ides-of-month month))
-      (roman-date year month ides
-                  (inc (- (ides-of-month month) day)) false))
-     ((or (/= month february)
-          (not (julian-leap-year? year)))
-      ;; After the Ides, in a month that is not February of a
-      ;; leap year
-      (roman-date year-prime month-prime kalends
-                  (inc (- kalends1 date)) false))
-     ((< day 25)
-      ;; February of a leap year, before leap day
-      (roman-date year march kalends (- 30 day) false))
-     (true
-      ;; February of a leap year, on or after leap day
-      (roman-date year march kalends
-                  (- 31 day) (= day 25))))))
+     (= day 1) (roman-date year month kalends 1 false)
+     (<= day (nones-of-month month))
+     (roman-date year month nones
+                 (inc (- (nones-of-month month) day)) false)
+     (<= day (ides-of-month month))
+     (roman-date year month ides
+                 (inc (- (ides-of-month month) day)) false)
+     (or (/= month february)
+         (not (julian-leap-year? year)))
+     ;; After the Ides, in a month that is not February of a
+     ;; leap year
+     (roman-date year-prime month-prime kalends
+                 (inc (- kalends1 date)) false)
+     (< day 25)
+     ;; February of a leap year, before leap day
+     (roman-date year march kalends (- 30 day) false)
+     true
+     ;; February of a leap year, on or after leap day
+     (roman-date year march kalends
+                 (- 31 day) (= day 25)))))
 
 (def year-rome-founded
   ;; TYPE julian-year
@@ -1793,11 +1793,11 @@
         ny1 (hebrew-calendar-elapsed-days h-year)
         ny2 (hebrew-calendar-elapsed-days (inc h-year))]
     (cond
-     ((= (- ny2 ny1) 356) ; Next year would be too long.
-      2)
-     ((= (- ny1 ny0) 382) ; Previous year too short.
-      1)
-     (t 0))))
+      (= (- ny2 ny1) 356) ; Next year would be too long.
+      2
+     (= (- ny1 ny0) 382) ; Previous year too short.
+     1
+     :true 0)))
 
 (defn days-in-hebrew-year [h-year]
   ;; TYPE hebrew-year -> {353,354,355,383,384,385}
@@ -2037,14 +2037,14 @@
         iyyar4                          ; Ordinarily Iyyar 4
         (fixed-from-hebrew
          (hebrew-date h-year iyyar 4))]
-    (cond ((member (day-of-week-from-fixed iyyar4)
-                   (list thursday friday))
-           ;; If Iyyar 4 is Thursday or Friday, then Wednesday
-           (kday-before wednesday iyyar4))
+    (cond (member (day-of-week-from-fixed iyyar4)
+                  (list thursday friday))
+          ;; If Iyyar 4 is Thursday or Friday, then Wednesday
+          (kday-before wednesday iyyar4)
           ;; If it's on Sunday, then Monday
-          ((= sunday (day-of-week-from-fixed iyyar4))
-           (inc iyyar4))
-          (t iyyar4))))
+          (= sunday (day-of-week-from-fixed iyyar4))
+          (inc iyyar4)
+          :true iyyar4)))
 
 (defn hebrew-birthday [birthdate h-year]
   ;; TYPE (hebrew-date hebrew-year) -> fixed-date
@@ -2092,38 +2092,38 @@
      ;; If it's Marheshvan 30 it depends on the first
      ;; anniversary; if that was not Marheshvan 30, use
      ;; the day before Kislev 1.
-     ((and (= death-month marheshvan)
-           (= death-day 30)
-           (not (long-marheshvan? (inc death-year))))
-      (dec (fixed-from-hebrew
-           (hebrew-date h-year kislev 1))))
+     (and (= death-month marheshvan)
+          (= death-day 30)
+          (not (long-marheshvan? (inc death-year))))
+     (dec (fixed-from-hebrew
+           (hebrew-date h-year kislev 1)))
      ;; If it's Kislev 30 it depends on the first
      ;; anniversary; if that was not Kislev 30, use
      ;; the day before Tevet 1.
-     ((and (= death-month kislev)
-           (= death-day 30)
-           (short-kislev? (inc death-year)))
-      (dec (fixed-from-hebrew
-           (hebrew-date h-year tevet 1))))
+     (and (= death-month kislev)
+          (= death-day 30)
+          (short-kislev? (inc death-year)))
+     (dec (fixed-from-hebrew
+           (hebrew-date h-year tevet 1)))
      ;; If it's Adar II, use the same day in last
      ;; month of Hebrew year (Adar or Adar II).
-     ((= death-month adarii)
-      (fixed-from-hebrew
-       (hebrew-date
-        h-year (last-month-of-hebrew-year h-year)
-        death-day)))
+     (= death-month adarii)
+     (fixed-from-hebrew
+      (hebrew-date
+       h-year (last-month-of-hebrew-year h-year)
+       death-day))
      ;; If it's the 30th in Adar I and Hebrew year is not a
      ;; Hebrew leap year (so Adar has only 29 days), use the
      ;; last day in Shevat.
-     ((and (= death-day 30)
-           (= death-month adar)
-           (not (hebrew-leap-year? h-year)))
-      (fixed-from-hebrew (hebrew-date h-year shevat 30)))
+     (and (= death-day 30)
+          (= death-month adar)
+          (not (hebrew-leap-year? h-year)))
+     (fixed-from-hebrew (hebrew-date h-year shevat 30))
      ;; In all other cases, use the normal anniversary of
      ;; the date of death.
-     (t (+ (fixed-from-hebrew
-            (hebrew-date h-year death-month 1))
-           death-day -1)))))
+     :true (+ (fixed-from-hebrew
+               (hebrew-date h-year death-month 1))
+              death-day -1))))
 
 (defn yahrzeit-in-gregorian [death-date g-year]
   ;; TYPE (hebrew-date gregorian-year)
@@ -2160,17 +2160,17 @@
         basic (list tuesday thursday saturday)
         extra
         (cond
-          ((and (= h-month marheshvan) (= h-day 30))
-           nil)
-          ((and (= h-month kislev) (< h-day 30))
-           (list monday wednesday friday))
-          ((and (= h-month kislev) (= h-day 30))
-           (list monday))
-          ((member h-month (list tevet shevat))
-           (list sunday monday))
-          ((and (= h-month adar) (< h-day 30))
-           (list sunday monday))
-          (t (list sunday)))]
+          (and (= h-month marheshvan) (= h-day 30))
+          nil
+          (and (= h-month kislev) (< h-day 30))
+          (list monday wednesday friday)
+          (and (= h-month kislev) (= h-day 30))
+          (list monday)
+          (member h-month (list tevet shevat))
+          (list sunday monday)
+          (and (= h-month adar) (< h-day 30))
+          (list sunday monday)
+          :true (list sunday))]
     (shift-days (append basic extra) n)))
 
 
@@ -2950,11 +2950,11 @@
            (* (sin-degrees phi)
               (cos-degrees
                (- psi psi-prime))))]
-    (cond ((or (= x y 0) (= phi-prime (deg 90)))
-           (deg 0))
-          ((= phi-prime (deg -90))
-           (deg 180))
-          (t (arctan-degrees y x)))))
+    (cond (or (= x y 0) (= phi-prime (deg 90)))
+          (deg 0)
+          (= phi-prime (deg -90))
+          (deg 180)
+          :true (arctan-degrees y x))))
 
 (defn standard-from-universal [tee_rom-u location]
   ;; TYPE (moment location) -> moment
@@ -3231,19 +3231,19 @@
   ;; Returns bogus if temporal hour is undefined that day.
   (let [date (fixed-from-moment tee)
         hour (* 24 (time-from-moment tee))
-        h (cond ((<= 6 hour 18)         ; daytime today
-                 (daytime-temporal-hour date location))
-                ((< hour 6)             ; early this morning
-                 (nighttime-temporal-hour (dec date) location))
-                (t                      ; this evening
-                 (nighttime-temporal-hour date location)))]
-    (cond ((equal h bogus) bogus)
-          ((<= 6 hour 18); daytime today
-           (+ (sunrise date location) (* (- hour 6) h)))
-          ((< hour 6)    ; early this morning
-           (+ (sunset (dec date) location) (* (+ hour 6) h)))
-          (t             ; this evening
-           (+ (sunset date location) (* (- hour 18) h))))))
+        h (cond (<= 6 hour 18)         ; daytime today
+                (daytime-temporal-hour date location)
+                (< hour 6)             ; early this morning
+                (nighttime-temporal-hour (dec date) location)
+                :true                      ; this evening
+                (nighttime-temporal-hour date location))]
+    (cond (equal h bogus) bogus
+          (<= 6 hour 18); daytime today
+          (+ (sunrise date location) (* (- hour 6) h))
+          (< hour 6)    ; early this morning
+          (+ (sunset (dec date) location) (* (+ hour 6) h))
+          :true             ; this evening
+          (+ (sunset date location) (* (- hour 18) h)))))
 
 (defn jewish-morning-end [date location]
   ;; TYPE (fixed-date location) -> moment
@@ -4421,13 +4421,13 @@
            (gregorian-year-from-fixed bahai-epoch))]
     (+ (fixed-from-gregorian ; Prior years.
         (gregorian-date g-year march 20))
-       (cond ((= month ayyam-i-ha) ; Intercalary period.
-              342) ; 18 months have elapsed.
-             ((= month 19); Last month of year.
-              (if (gregorian-leap-year? (inc g-year))
-                  347  ; Long ayyam-i-ha.
-                346)); Ordinary ayyam-i-ha.
-             (t (* 19 (dec month)))); Elapsed months.
+       (cond (= month ayyam-i-ha) ; Intercalary period.
+             342 ; 18 months have elapsed.
+             (= month 19); Last month of year.
+             (if (gregorian-leap-year? (inc g-year))
+               347  ; Long ayyam-i-ha.
+               346); Ordinary ayyam-i-ha.
+             :true (* 19 (dec month))); Elapsed months.
        day))) ; Days of current month.
 
 (defn bahai-from-fixed [date]
@@ -4450,16 +4450,16 @@
         (- date (fixed-from-bahai
                  (bahai-date major cycle year 1 1)))
         month
-        (cond ((>= date
-                   (fixed-from-bahai
-                    (bahai-date major cycle year 19 1)))
-               19)                      ; Last month of year.
-              ((>= date                 ; Intercalary days.
-                   (fixed-from-bahai
-                    (bahai-date major cycle year
-                                ayyam-i-ha 1)))
-               ayyam-i-ha)              ; Intercalary period.
-              (t (inc (quotient days 19))))
+        (cond (>= date
+                  (fixed-from-bahai
+                   (bahai-date major cycle year 19 1)))
+              19                      ; Last month of year.
+              (>= date                 ; Intercalary days.
+                  (fixed-from-bahai
+                   (bahai-date major cycle year
+                               ayyam-i-ha 1)))
+              ayyam-i-ha              ; Intercalary period.
+              :true (inc (quotient days 19)))
         day (- date -1
                (fixed-from-bahai
                 (bahai-date major cycle year month 1)))]
@@ -4508,25 +4508,25 @@
         (+ (* 361 (dec major))
            (* 19 (dec cycle))
            year)]
-    (cond ((= month 19); last month of year
-           (+ (astro-bahai-new-year-on-or-before
-               (+ bahai-epoch
-                  (floor (* mean-tropical-year 
-                            (+ years 1/2)))))
-              -20 day))
-          ((= month ayyam-i-ha)
-           ;; intercalary month, between 18th & 19th
-           (+ (astro-bahai-new-year-on-or-before
-               (+ bahai-epoch
-                  (floor (* mean-tropical-year
-                            (- years 1/2)))))
-              341 day))
-          (t (+ (astro-bahai-new-year-on-or-before
-                 (+ bahai-epoch
-                    (floor (* mean-tropical-year
-                              (- years 1/2)))))
-                (* (dec month) 19)
-                day -1)))))
+    (cond (= month 19); last month of year
+          (+ (astro-bahai-new-year-on-or-before
+              (+ bahai-epoch
+                 (floor (* mean-tropical-year 
+                           (+ years 1/2)))))
+             -20 day)
+          (= month ayyam-i-ha)
+          ;; intercalary month, between 18th & 19th
+          (+ (astro-bahai-new-year-on-or-before
+              (+ bahai-epoch
+                 (floor (* mean-tropical-year
+                           (- years 1/2)))))
+             341 day)
+          :true (+ (astro-bahai-new-year-on-or-before
+                (+ bahai-epoch
+                   (floor (* mean-tropical-year
+                             (- years 1/2)))))
+               (* (dec month) 19)
+               day -1))))
 
 (defn astro-bahai-from-fixed [date]
   ;; TYPE fixed-date -> bahai-date
@@ -4541,16 +4541,16 @@
         (- date new-year)
         month
         (cond
-          ((>= date (fixed-from-astro-bahai
-                     (bahai-date major cycle year 19 1)))
+          (>= date (fixed-from-astro-bahai
+                    (bahai-date major cycle year 19 1)))
                                         ; last month of year
-           19)
-          ((>= date
-               (fixed-from-astro-bahai
-                (bahai-date major cycle year ayyam-i-ha 1)))
+          19
+          (>= date
+              (fixed-from-astro-bahai
+               (bahai-date major cycle year ayyam-i-ha 1)))
                                         ; intercalary month
-           ayyam-i-ha)
-          (t (inc (quotient days 19))))
+          ayyam-i-ha
+          :true (inc (quotient days 19)))
         day (- date -1
                (fixed-from-astro-bahai
                 (bahai-date major cycle year month 1)))]
@@ -5133,19 +5133,19 @@
         next-first-minor-term
         (current-minor-solar-term next-new-year)]
     (cond
-     ((and
-       (= first-minor-term 1)        ; no lichun at start...
-       (= next-first-minor-term 12)) ; ...or at end
-      widow)
-     ((and
-       (= first-minor-term 1)        ; no lichun at start...
-       (/= next-first-minor-term 12)); ...only at end
-      blind)
-     ((and
-       (/= first-minor-term 1)       ; lichun at start...
-       (= next-first-minor-term 12)) ; ... not at end
-      bright)
-     (t double-bright))))            ; lichun at start and end
+     (and
+      (= first-minor-term 1)        ; no lichun at start...
+      (= next-first-minor-term 12)) ; ...or at end
+     widow
+     (and
+      (= first-minor-term 1)        ; no lichun at start...
+      (/= next-first-minor-term 12)); ...only at end
+     blind
+     (and
+      (/= first-minor-term 1)       ; lichun at start...
+      (= next-first-minor-term 12)) ; ... not at end
+     bright
+     :true double-bright)))            ; lichun at start and end
 
 (defn japanese-location [tee]
   ;; TYPE moment -> location
@@ -5163,24 +5163,24 @@
   ;; Location for Korean calendar; varies with $tee$.
   ;; Seoul city hall at a varying time zone.
   (let [z (cond
-            ((< tee
-                (fixed-from-gregorian
-                 (gregorian-date 1908 april 1)))
-             ;; local mean time for longitude 126 deg 58 min
-             3809/450)
-            ((< tee
-                (fixed-from-gregorian
-                 (gregorian-date 1912 january 1)))
-             8.5)
-            ((< tee
-                (fixed-from-gregorian
-                 (gregorian-date 1954 march 21)))
-             9)
-            ((< tee
-                (fixed-from-gregorian
-                 (gregorian-date 1961 august 10)))
-             8.5)
-            (t 9))]
+            (< tee
+               (fixed-from-gregorian
+                (gregorian-date 1908 april 1)))
+            ;; local mean time for longitude 126 deg 58 min
+            3809/450
+            (< tee
+               (fixed-from-gregorian
+                (gregorian-date 1912 january 1)))
+            8.5
+            (< tee
+               (fixed-from-gregorian
+                (gregorian-date 1954 march 21)))
+            9
+            (< tee
+               (fixed-from-gregorian
+                (gregorian-date 1961 august 10)))
+            8.5
+            :true 9)]
     (location (angle 37 34 0) (angle 126 58 0)
               (mt 0) (hr z))))
 
@@ -5488,18 +5488,18 @@
         est
         (- s (- day)
            (cond
-             ((< 3 k 27)                ; Not borderline case.
-              k)
-             ((let [(mid            ; Middle of preceding solar month.
-                     (hindu-lunar-from-fixed
-                      (- s 15)))]
-                (or                     ; In month starting near $s$.
-                 (/= (hindu-lunar-month mid) month) 
-                 (and (hindu-lunar-leap-month mid)
-                      (not leap-month))))
-              (mod3 k -15 15))
-             (t                         ; In preceding month.
-              (mod3 k 15 45))))
+             (< 3 k 27)                ; Not borderline case.
+             k
+             (let [(mid            ; Middle of preceding solar month.
+                    (hindu-lunar-from-fixed
+                     (- s 15)))]
+               (or                     ; In month starting near $s$.
+                (/= (hindu-lunar-month mid) month) 
+                (and (hindu-lunar-leap-month mid)
+                     (not leap-month))))
+             (mod3 k -15 15)
+             :true                         ; In preceding month.
+             (mod3 k 15 45)))
         tau                             ; Refined estimate.
         (- est (mod3 (- (hindu-lunar-day-from-moment
                          (+ est (hr 6)))
@@ -5652,11 +5652,11 @@
         leap-month (hindu-lunar-leap-month l-date)
         day (hindu-lunar-day l-date)
         leap-day (hindu-lunar-leap-day l-date)
-        m (cond ((or leap-month (<= day 15))
-                 month)
-                ((hindu-expunged? year (amod (dec month) 12))
-                 (amod (- month 2) 12))
-                (t (amod (dec month) 12)))]
+        m (cond (or leap-month (<= day 15))
+                month
+                (hindu-expunged? year (amod (dec month) 12))
+                (amod (- month 2) 12)
+                :true (amod (dec month) 12))]
     (fixed-from-hindu-lunar
      (hindu-lunar-date year m leap-month day leap-day))))
 
@@ -5686,19 +5686,19 @@
   (let [date (fixed-from-moment tee)
         time (time-from-moment tee)
         q (floor (* 4 time))            ; quarter of day
-        a (cond ((= q 0)                ; early this morning
-                 (hindu-sunset (dec date)))
-                ((= q 3)                ; this evening
-                 (hindu-sunset date))
-                (t                      ;  daytime today
-                 (hindu-sunrise date)))
-        b (cond ((= q 0) (hindu-sunrise date))
-                ((= q 3) (hindu-sunrise (inc date)))
-                (t (hindu-sunset date)))]
+        a (cond (= q 0)                ; early this morning
+                (hindu-sunset (dec date))
+                (= q 3)                ; this evening
+                (hindu-sunset date)
+                :true                      ;  daytime today
+                (hindu-sunrise date))
+        b (cond (= q 0) (hindu-sunrise date)
+                (= q 3) (hindu-sunrise (inc date))
+                :true (hindu-sunset date))]
     (+ a (* 2 (- b a) (- time
-                         (cond ((= q 3) (hr 18))
-                               ((= q 0) (hr -6))
-                               (t (hr 6))))))))
+                         (cond (= q 3) (hr 18)
+                               (= q 0) (hr -6)
+                               :true (hr 6)))))))
 
 (defn ayanamsha [tee]
   ;; TYPE moment -> angle
@@ -5822,18 +5822,18 @@
         est
         (- s (- day)
            (cond
-             ((< 3 k 27)                ; Not borderline case.
-              k)
-             ((let [(mid            ; Middle of preceding solar month.
-                     (astro-hindu-lunar-from-fixed
-                      (- s 15)))]
-                (or                     ; In month starting near $s$.
-                 (/= (hindu-lunar-month mid) month) 
-                 (and (hindu-lunar-leap-month mid)
-                      (not leap-month))))
-              (mod3 k -15 15))
-             (t                         ; In preceding month.
-              (mod3 k 15 45))))
+             (< 3 k 27)                ; Not borderline case.
+             k
+             (let [(mid            ; Middle of preceding solar month.
+                    (astro-hindu-lunar-from-fixed
+                     (- s 15)))]
+               (or                     ; In month starting near $s$.
+                (/= (hindu-lunar-month mid) month) 
+                (and (hindu-lunar-leap-month mid)
+                     (not leap-month))))
+             (mod3 k -15 15)
+             :true                         ; In preceding month.
+             (mod3 k 15 45)))
         tau                             ; Refined estimate.
         (- est (mod3 (- (astro-lunar-day-from-moment
                          (+ est (hr 6)))
@@ -5943,15 +5943,15 @@
                           (hindu-lunar-month mid)
                           (hindu-lunar-leap-month mid)
                           l-day false)]
-    (cond (expunged?
-           (dec (next d try
+    (cond expunged?
+          (dec (next d try
                      (not
                       (hindu-lunar-on-or-before?
-                       (hindu-lunar-from-fixed d) l-date)))))
-          ((/= l-day (hindu-lunar-day
-                      (hindu-lunar-from-fixed try)))
-           (dec try))
-          (t try))))
+                       (hindu-lunar-from-fixed d) l-date))))
+          (/= l-day (hindu-lunar-day
+                     (hindu-lunar-from-fixed try)))
+          (dec try)
+          :true try)))
 
 (defn hindu-lunar-holiday [l-month l-day g-year]
   ;; TYPE (hindu-lunar-month hindu-lunar-day
@@ -6021,9 +6021,9 @@
   ;; TYPE dec60 -> 0-10
   ;; Number (0-10) of the name of the $n$-th (dec60) Hindu
   ;; karana.
-  (cond ((= n 1) 0)
-        ((> n 57) (- n 50))
-        (t (amod (dec n) 7))))
+  (cond (= n 1) 0
+        (> n 57) (- n 50)
+        :true (amod (dec n) 7)))
 
 (defn yoga [date]
   ;; TYPE fixed-date -> dec27
@@ -6093,28 +6093,28 @@
 (defn tibetan-sun-equation [alpha] 
   ;; TYPE rational-angle -> rational
   ;; Interpolated tabular sine of solar anomaly $alpha$.
-  (cond ((> alpha 6) (- (tibetan-sun-equation (- alpha 6))))
-        ((> alpha 3) (tibetan-sun-equation (- 6 alpha)))
-        ((integerp alpha)
-         (nth alpha (list (mins 0) (mins 6) (mins 10) (mins 11))))
-        (t (+ (* (mod alpha 1)
-                 (tibetan-sun-equation (ceiling alpha)))
-              (* (mod (- alpha) 1)
-                 (tibetan-sun-equation (floor alpha)))))))
+  (cond (> alpha 6) (- (tibetan-sun-equation (- alpha 6)))
+        (> alpha 3) (tibetan-sun-equation (- 6 alpha))
+        (integerp alpha)
+        (nth alpha (list (mins 0) (mins 6) (mins 10) (mins 11)))
+        :true (+ (* (mod alpha 1)
+                (tibetan-sun-equation (ceiling alpha)))
+             (* (mod (- alpha) 1)
+                (tibetan-sun-equation (floor alpha))))))
 
 (defn tibetan-moon-equation [alpha] 
   ;; TYPE rational-angle -> rational
   ;; Interpolated tabular sine of lunar anomaly $alpha$.
-  (cond ((> alpha 14) (- (tibetan-moon-equation (- alpha 14))))
-        ((> alpha 7) (tibetan-moon-equation (- 14 alpha)))
-        ((integerp alpha)
-         (nth alpha
-              (list (mins 0) (mins 5) (mins 10) (mins 15) 
-                    (mins 19) (mins 22) (mins 24) (mins 25))))
-        (t (+ (* (mod alpha 1) 
-                 (tibetan-moon-equation (ceiling alpha)))
-              (* (mod (- alpha) 1) 
-                 (tibetan-moon-equation (floor alpha)))))))
+  (cond (> alpha 14) (- (tibetan-moon-equation (- alpha 14)))
+        (> alpha 7) (tibetan-moon-equation (- 14 alpha))
+        (integerp alpha)
+        (nth alpha
+             (list (mins 0) (mins 5) (mins 10) (mins 15) 
+                   (mins 19) (mins 22) (mins 24) (mins 25)))
+        :true (+ (* (mod alpha 1) 
+                (tibetan-moon-equation (ceiling alpha)))
+             (* (mod (- alpha) 1) 
+                (tibetan-moon-equation (floor alpha))))))
 
 (defn fixed-from-tibetan [t-date]
   ;; TYPE tibetan-date -> fixed-date
@@ -6166,15 +6166,15 @@
               (tibetan-date year0 month0 false d false))))
         leap-month (> day0 30)
         day (amod day0 30)
-        month (amod (cond ((> day day0) (dec month0))
-                          (leap-month (inc month0))
-                          (t month0))
+        month (amod (cond (> day day0) (dec month0)
+                          leap-month (inc month0)
+                          :true month0)
                     12)
-        year (cond ((and (> day day0) (= month0 1)) 
-                    (dec year0))
-                   ((and leap-month (= month0 12)) 
-                    (inc year0))
-                   (t year0))
+        year (cond (and (> day day0) (= month0 1)) 
+                   (dec year0)
+                   (and leap-month (= month0 12)) 
+                   (inc year0)
+                   :true year0)
         leap-day
         (= date
            (fixed-from-tibetan
@@ -6259,9 +6259,9 @@
   ;; Returns bogus if there is no sunset on $date$.
   (let [sun (sunset date location)
         moon (moonset date location)]
-    (cond ((equal sun bogus) bogus)
-          ((equal moon bogus) (hr 24)) ; Arbitrary.
-          (t (- moon sun)))))
+    (cond (equal sun bogus) bogus
+          (equal moon bogus) (hr 24) ; Arbitrary.
+          :true (- moon sun))))
 
 (def babylon
   ;; TYPE location
