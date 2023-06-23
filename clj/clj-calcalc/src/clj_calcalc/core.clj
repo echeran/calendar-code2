@@ -2436,7 +2436,7 @@
 (def aztec-correlation
   ;; TYPE fixed-date
   ;; Known date of Aztec cycles (Caso's correlation)
-  (fixed-from-julian (julian-date 1521 August 13)))
+  (fixed-from-julian (julian-date 1521 august 13)))
 
 (defn aztec-xihuitl-ordinal [x-date]
   ;; TYPE aztec-xihuitl-date -> nonnegative-integer
