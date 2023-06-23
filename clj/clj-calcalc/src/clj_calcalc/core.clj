@@ -195,9 +195,9 @@
   ;; Use bisection to find inverse of angular function
   ;; $f$ at $y$ within interval $r$.
   (let [varepsilon# 1/100000]          ; Desired accuracy
-    `(binary-search l (begin ~r) u (end ~r) x
-                    (< (mod (- (~f x) ~y) 360) (deg 180))
-                    (< (- u l) varepsilon#))))
+    `(binary-search l# (begin ~r) u# (end ~r) x#
+                    (< (mod (- (~f x#) ~y) 360) (deg 180))
+                    (< (- u# l#) ~varepsilon#))))
 
 (defmacro sigma [list body]
   ;; TYPE (list-of-pairs (list-of-reals->real))
