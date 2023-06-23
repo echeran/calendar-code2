@@ -3440,6 +3440,10 @@
         z (local-zero-hour (dec tee))]
     (- tee (- date z))))
 
+;; Add a forward declaration for now until dependencies can be figured
+;; out and code can be detangled
+(declare ephemeris-correction)
+
 (defn universal-from-dynamical [tee]
   ;; TYPE moment -> moment
   ;; Universal moment from Dynamical time $tee$.
