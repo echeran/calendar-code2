@@ -19,10 +19,34 @@
   ;; Used to denote nonexistent dates.
   "bogus")
 
+;; copying the ICU4X logic from icu_calendar::helpers::div_rem_euclid,
+;; which is based on i32 (ints)
+(defn div-rem-euclid [n d]
+  (let [a (quot n d)
+        b (rem n d)]
+    (if (or (>= n 0) (zero? b))
+      [a b]
+      [(dec a) (+ d b)])))
+
+(defn rem-euclid [n d]
+  (-> (div-rem-euclid n d)
+      second))
+
 (defn quotient [m n]
   ;; TYPE (real nonzero-real) -> integer
   ;; Whole part of $m$/$n$.
-  (floor m n))
+  ;;(int (/ m n))
+
+  ;; copying the ICU4X logic from icu_calendar::helpers::quotient,
+  ;; which is based on i32 (ints)
+  ;; (let [a (quot m n)
+  ;;       b (rem m n)]
+  ;;   (if (or (>= m 0) (zero? b))
+  ;;     a
+  ;;     (dec a)))
+
+  (-> (div-rem-euclid m n)
+      first))
 
 (defn amod [x y]
   ;; TYPE (integer nonzero-integer) -> integer
