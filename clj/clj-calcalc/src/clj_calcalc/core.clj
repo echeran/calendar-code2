@@ -51,6 +51,8 @@
 
 (def evenp even?)
 
+(def integerp integer?)
+
 (defn cos [x]
   (Math/cos x))
 
