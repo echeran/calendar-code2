@@ -4,15 +4,15 @@
 
 ;;;; Section: Basic Code
 
-(def true
-  ;; TYPE boolean
-  ;; Constant representing true.
-  t)
+;; (def true
+;;   ;; TYPE boolean
+;;   ;; Constant representing true.
+;;   t)
 
-(def false
-  ;; TYPE boolean
-  ;; Constant representing false.
-  nil)
+;; (def false
+;;   ;; TYPE boolean
+;;   ;; Constant representing false.
+;;   nil)
 
 (def bogus
   ;; TYPE string
