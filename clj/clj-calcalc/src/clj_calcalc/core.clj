@@ -2767,25 +2767,10 @@
   ;; Position of $date$ in 210-day Pawukon cycle.
   (mod (- date bali-epoch) 210))
 
-(defn bali-luang-from-fixed [date]
-  ;; TYPE fixed-date -> boolean
-  ;; Membership of $date$ in "decday" Balinese cycle.
-  (evenp (bali-dasawara-from-fixed date)))
-
-(defn bali-dwiwara-from-fixed [date]
-  ;; TYPE fixed-date -> dec2
-  ;; Position of $date$ in 2-day Balinese cycle.
-  (amod (bali-dasawara-from-fixed date) 2))
-
 (defn bali-triwara-from-fixed [date]
   ;; TYPE fixed-date -> dec3
   ;; Position of $date$ in 3-day Balinese cycle.
   (inc (mod (bali-day-from-fixed date) 3)))
-
-(defn bali-caturwara-from-fixed [date]
-  ;; TYPE fixed-date -> dec4
-  ;; Position of $date$ in 4-day Balinese cycle.
-  (amod (bali-asatawara-from-fixed date) 4))
 
 (defn bali-pancawara-from-fixed [date]
   ;; TYPE fixed-date -> dec5
@@ -2812,6 +2797,11 @@
                         210)))
          8))))
 
+(defn bali-caturwara-from-fixed [date]
+  ;; TYPE fixed-date -> dec4
+  ;; Position of $date$ in 4-day Balinese cycle.
+  (amod (bali-asatawara-from-fixed date) 4))
+
 (defn bali-sangawara-from-fixed [date]
   ;; TYPE fixed-date -> dec9
   ;; Position of $date$ in 9-day Balinese cycle.
@@ -2829,6 +2819,16 @@
     (mod (+ 1 (nth i (list 5 9 7 4 8))
             (nth j (list 5 4 3 7 8 6 9)))
          10)))
+
+(defn bali-luang-from-fixed [date]
+  ;; TYPE fixed-date -> boolean
+  ;; Membership of $date$ in "decday" Balinese cycle.
+  (evenp (bali-dasawara-from-fixed date)))
+
+(defn bali-dwiwara-from-fixed [date]
+  ;; TYPE fixed-date -> dec2
+  ;; Position of $date$ in 2-day Balinese cycle.
+  (amod (bali-dasawara-from-fixed date) 2))
 
 (defn bali-pawukon-from-fixed [date]
   ;; TYPE fixed-date -> balinese-date
