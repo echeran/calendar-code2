@@ -254,7 +254,7 @@
              (prod (nth j (append b c))
                    j i (< j (+ (length b) (length c)))))
           i 0 (< i (length a)))
-     (apply '* c)))
+     (apply * c)))
 
 (defn to-radix [x b &optional c]
   ;; TYPE (real list-of-rationals list-of-rationals)
@@ -267,7 +267,7 @@
         (append (to-radix (quotient x (nth (dec (length b)) b))
                           (butlast b) nil)
                 (list (mod x (nth (dec (length b)) b)))))
-    (to-radix (* x (apply '* c)) (append b c))))
+    (to-radix (* x (apply * c)) (append b c))))
 
 (defn clock-from-moment [tee]
   ;; TYPE moment -> clock-time
