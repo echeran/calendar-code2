@@ -5955,9 +5955,9 @@
            (cond
              (< 3 k 27)                ; Not borderline case.
              k
-             (let [(mid            ; Middle of preceding solar month.
-                    (astro-hindu-lunar-from-fixed
-                     (- s 15)))]
+             (let [mid              ; Middle of preceding solar month.
+                   (astro-hindu-lunar-from-fixed
+                    (- s 15))]
                (or                     ; In month starting near $s$.
                 (not= (hindu-lunar-month mid) month) 
                 (and (hindu-lunar-leap-month mid)
