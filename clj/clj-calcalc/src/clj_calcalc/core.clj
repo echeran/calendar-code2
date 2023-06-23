@@ -10,6 +10,12 @@
 (defmacro length [coll]
   `(count ~coll))
 
+(defmacro append [coll x]
+  `(concat ~coll [~x]))
+
+(defmacro member [x coll]
+  `(boolean (some #{~x} ~coll)))
+
 ;; (def true
 ;;   ;; TYPE boolean
 ;;   ;; Constant representing true.
