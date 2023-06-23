@@ -7,6 +7,9 @@
 (defmacro third [coll]
   `(nth ~coll 2))
 
+(defmacro fourth [coll]
+  `(nth ~coll 3))
+
 (defmacro length [coll]
   `(count ~coll))
 
