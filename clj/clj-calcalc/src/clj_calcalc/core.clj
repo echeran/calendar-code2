@@ -2,6 +2,13 @@
   (:require [clojure.math.numeric-tower :as math :refer [expt floor round abs]]))
 
 
+(declare summer)
+(declare spring)
+(declare winter)
+(declare autumn)
+(declare deg)
+(declare hr)
+
 ;;;; Section: Basic Code
 
 (defn third [coll]
