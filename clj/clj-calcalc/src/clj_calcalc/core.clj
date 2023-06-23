@@ -4,6 +4,12 @@
 
 ;;;; Section: Basic Code
 
+(defmacro third [coll]
+  `(nth ~coll 2))
+
+(defmacro length [coll]
+  `(count ~coll))
+
 ;; (def true
 ;;   ;; TYPE boolean
 ;;   ;; Constant representing true.
