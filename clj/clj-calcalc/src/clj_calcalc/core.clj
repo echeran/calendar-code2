@@ -110,9 +110,9 @@
   ;; TYPE (real list-of-reals) -> real
   ;; Sum powers of $x$ with coefficients (from order 0 up)
   ;; in list $a$.
-  (if (equal a nil)
+  (if (empty? a)
       0
-    (+ (first a) (* x (poly x (rest a))))))
+      (+ (first a) (* x (poly x (rest a))))))
 
 (defn rd [tee]
   ;; TYPE moment -> moment
