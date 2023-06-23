@@ -6485,6 +6485,12 @@
         day (- date crescent -1)]
     (babylonian-date year month leap day)))
 
+;; Add a forward declaration for now until dependencies can be figured
+;; out and code can be detangled
+(declare visible-crescent)
+(declare simple-best-view)
+(declare bruin-best-view)
+
 (defn phasis-on-or-before [date location]
   ;; TYPE (fixed-date location) -> fixed-date
   ;; Closest fixed date on or before $date$ when crescent
