@@ -37,13 +37,14 @@
       x
     (+ a (mod (- x a) (- b a)))))
 
-(defmacro next (index initial condition)
+(defmacro next [index initial condition]
   ;; TYPE (* integer (integer->boolean)) -> integer
   ;; First integer greater or equal to $initial$ such that
   ;; $condition$ holds.
-  `(loop for ,index from ,initial
-         when ,condition
-         return ,index))
+  `(loop [~index ~initial]
+     (if ~condition
+       ~index
+       (recur (inc ~index)))))
 
 (defmacro final (index initial condition)
   ;; TYPE (* integer (integer->boolean)) -> integer
