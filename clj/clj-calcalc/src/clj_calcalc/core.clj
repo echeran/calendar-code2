@@ -3278,7 +3278,7 @@
   ;; Refraction angle at moment $tee$ at $location$.
   ;; The moment is not used.
   (let [h (max (mt 0) (elevation location))
-        cap-R (mt 6.372d6)            ; Radius of Earth.
+        cap-R (mt 6.372e6)            ; Radius of Earth.
         dip                           ; Depression of visible horizon.
         (arccos-degrees (/ cap-R (+ cap-R h)))]
     (+ (mins 34) dip
