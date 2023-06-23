@@ -1775,37 +1775,6 @@
   ;; calendar.
   (= (mod h-year 7) 0))
 
-(defn last-day-of-hebrew-month [h-year h-month]
-  ;; TYPE (hebrew-year hebrew-month) -> hebrew-day
-  ;; Last day of month $h-month$ in Hebrew year $h-year$.
-  (if (or (member h-month
-                  (list iyyar tammuz elul tevet adarii))
-          (and (= h-month adar)
-               (not (hebrew-leap-year? h-year)))
-          (and (= h-month marheshvan)
-               (not (long-marheshvan? h-year)))
-          (and (= h-month kislev)
-               (short-kislev? h-year)))
-      29
-    30))
-
-(defn molad [h-year h-month]
-  ;; TYPE (hebrew-year hebrew-month) -> rational-moment
-  ;; Moment of mean conjunction of $h-month$ in Hebrew
-  ;; $h-year$.
-  (let [y ;; Treat Nisan as start of year.
-        (if (< h-month tishri)
-          (inc h-year)
-          h-year)
-        months-elapsed
-        (+ (- h-month tishri) ;; Months this year.
-           (quotient          ;; Months until New Year.
-            (- (* 235 y) 234) 
-            19))]
-    (+ hebrew-epoch
-       -876/25920
-       (* months-elapsed (+ 29 (hr 12) 793/25920)))))
-
 (defn hebrew-calendar-elapsed-days [h-year]
   ;; TYPE hebrew-year -> integer
   ;; Number of days elapsed from the (Sunday) noon prior
@@ -1839,13 +1808,6 @@
         (+ days 1) ; Delay one day.
       days)))
 
-(defn hebrew-new-year [h-year]
-  ;; TYPE hebrew-year -> fixed-date
-  ;; Fixed date of Hebrew new year $h-year$.
-  (+ hebrew-epoch
-     (hebrew-calendar-elapsed-days h-year)
-     (hebrew-year-length-correction h-year)))
-
 (defn hebrew-year-length-correction [h-year]
   ;; TYPE hebrew-year -> 0-2
   ;; Delays to start of Hebrew year $h-year$ to keep ordinary
@@ -1859,6 +1821,13 @@
      (= (- ny1 ny0) 382) ; Previous year too short.
      1
      :true 0)))
+
+(defn hebrew-new-year [h-year]
+  ;; TYPE hebrew-year -> fixed-date
+  ;; Fixed date of Hebrew new year $h-year$.
+  (+ hebrew-epoch
+     (hebrew-calendar-elapsed-days h-year)
+     (hebrew-year-length-correction h-year)))
 
 (defn days-in-hebrew-year [h-year]
   ;; TYPE hebrew-year -> {353,354,355,383,384,385}
@@ -1875,6 +1844,37 @@
   ;; TYPE hebrew-year -> boolean
   ;; True if Kislev is short in Hebrew year $h-year$.
   (member (days-in-hebrew-year h-year) (list 353 383)))
+
+(defn last-day-of-hebrew-month [h-year h-month]
+  ;; TYPE (hebrew-year hebrew-month) -> hebrew-day
+  ;; Last day of month $h-month$ in Hebrew year $h-year$.
+  (if (or (member h-month
+                  (list iyyar tammuz elul tevet adarii))
+          (and (= h-month adar)
+               (not (hebrew-leap-year? h-year)))
+          (and (= h-month marheshvan)
+               (not (long-marheshvan? h-year)))
+          (and (= h-month kislev)
+               (short-kislev? h-year)))
+      29
+    30))
+
+(defn molad [h-year h-month]
+  ;; TYPE (hebrew-year hebrew-month) -> rational-moment
+  ;; Moment of mean conjunction of $h-month$ in Hebrew
+  ;; $h-year$.
+  (let [y ;; Treat Nisan as start of year.
+        (if (< h-month tishri)
+          (inc h-year)
+          h-year)
+        months-elapsed
+        (+ (- h-month tishri) ;; Months this year.
+           (quotient          ;; Months until New Year.
+            (- (* 235 y) 234) 
+            19))]
+    (+ hebrew-epoch
+       -876/25920
+       (* months-elapsed (+ 29 (hr 12) 793/25920)))))
 
 (defn fixed-from-hebrew [h-date]
   ;; TYPE hebrew-date -> fixed-date
