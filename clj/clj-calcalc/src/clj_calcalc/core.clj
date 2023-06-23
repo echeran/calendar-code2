@@ -3982,24 +3982,6 @@
     (universal-from-dynamical
      (+ approx correction extra additional))))
 
-(defn new-moon-before [tee]
-  ;; TYPE moment -> moment
-  ;; Moment UT of last new moon before $tee$.
-  (let [t0 (nth-new-moon 0)
-        phi (lunar-phase tee)
-        n (round (- (/ (- tee t0) mean-synodic-month)
-                    (/ phi (deg 360))))]
-    (nth-new-moon (final k (dec n) (< (nth-new-moon k) tee)))))
-
-(defn new-moon-at-or-after [tee]
-  ;; TYPE moment -> moment
-  ;; Moment UT of first new moon at or after $tee$.
-  (let [t0 (nth-new-moon 0)
-        phi (lunar-phase tee)
-        n (round (- (/ (- tee t0) mean-synodic-month)
-                    (/ phi (deg 360))))]
-    (nth-new-moon (next k n (>= (nth-new-moon k) tee)))))
-
 (defn lunar-phase [tee]
   ;; TYPE moment -> phase
   ;; Lunar phase, as an angle in degrees, at moment $tee$.
@@ -4018,6 +4000,24 @@
     (if (> (abs (- phi phi-prime)) (deg 180)) ; close call
         phi-prime
       phi)))
+
+(defn new-moon-before [tee]
+  ;; TYPE moment -> moment
+  ;; Moment UT of last new moon before $tee$.
+  (let [t0 (nth-new-moon 0)
+        phi (lunar-phase tee)
+        n (round (- (/ (- tee t0) mean-synodic-month)
+                    (/ phi (deg 360))))]
+    (nth-new-moon (final k (dec n) (< (nth-new-moon k) tee)))))
+
+(defn new-moon-at-or-after [tee]
+  ;; TYPE moment -> moment
+  ;; Moment UT of first new moon at or after $tee$.
+  (let [t0 (nth-new-moon 0)
+        phi (lunar-phase tee)
+        n (round (- (/ (- tee t0) mean-synodic-month)
+                    (/ phi (deg 360))))]
+    (nth-new-moon (next k n (>= (nth-new-moon k) tee)))))
 
 (defn lunar-phase-at-or-before [phi tee]
   ;; TYPE (phase moment) -> moment
