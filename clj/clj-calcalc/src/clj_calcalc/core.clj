@@ -4886,6 +4886,11 @@
             (chinese-location date)))]
     (amod (+ 2 (quotient s (deg 30))) 12)))
 
+;; Add a forward declaration for now until dependencies can be figured
+;; out and code can be detangled
+(declare midnight-in-china)
+(declare chinese-prior-leap-month?)
+
 (defn major-solar-term-on-or-after [date]
   ;; TYPE fixed-date -> moment
   ;; Moment (in Beijing) of the first Chinese major
@@ -5510,6 +5515,10 @@
   ;; TYPE standard-year
   ;; Years from Kali Yuga until Saka era.
   3179)
+
+;; Add a forward declaration for now until dependencies can be figured
+;; out and code can be detangled
+(declare hindu-sunrise)
 
 (defn hindu-solar-from-fixed [date]
   ;; TYPE fixed-date -> hindu-solar-date
