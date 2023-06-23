@@ -663,26 +663,26 @@
 (defn gregorian-year-from-fixed [date]
   ;; TYPE fixed-date -> gregorian-year
   ;; Gregorian year corresponding to the fixed $date$.
-  (let [(d0                             ; Prior days.
-         (- date gregorian-epoch))
-        (n400                           ; Completed 400-year cycles.
-         (quotient d0 146097))
-        (d1                             ; Prior days not in n400.
-         (mod d0 146097))
-        (n100                           ; 100-year cycles not in n400.
-         (quotient d1 36524))
-        (d2                          ; Prior days not in n400 or n100.
-         (mod d1 36524))
-        (n4                       ; 4-year cycles not in n400 or n100.
-         (quotient d2 1461))
-        (d3                     ; Prior days not in n400, n100, or n4.
-         (mod d2 1461))
-        (n1                          ; Years not in n400, n100, or n4.
-         (quotient d3 365))
-        (year (+ (* 400 n400)
-                 (* 100 n100)
-                 (* 4 n4)
-                 n1))]
+  (let [d0                              ; Prior days.
+        (- date gregorian-epoch)
+        n400                            ; Completed 400-year cycles.
+        (quotient d0 146097)
+        d1                              ; Prior days not in n400.
+        (mod d0 146097)
+        n100                            ; 100-year cycles not in n400.
+        (quotient d1 36524)
+        d2                           ; Prior days not in n400 or n100.
+        (mod d1 36524)
+        n4                        ; 4-year cycles not in n400 or n100.
+        (quotient d2 1461)
+        d3                      ; Prior days not in n400, n100, or n4.
+        (mod d2 1461)
+        n1                           ; Years not in n400, n100, or n4.
+        (quotient d3 365)
+        year (+ (* 400 n400)
+                (* 100 n100)
+                (* 4 n4)
+                n1)]
     (if (or (= n100 4) (= n1 4))
         year      ; Date is day 366 in a leap year.
       (inc year)))); Date is ordinal day (inc (mod d3 365))
