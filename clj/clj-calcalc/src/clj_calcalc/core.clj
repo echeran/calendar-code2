@@ -51,7 +51,7 @@
   ;; $condition$ holds.
   `(loop for ,index from ,initial 
          when (not ,condition)
-         return (1- ,index)))
+         return (dec ,index)))
 
 (defmacro sum (expression index initial condition)
   ;; TYPE ((integer->real) * integer (integer->boolean))
@@ -220,9 +220,9 @@
   (if (null c)
       (if (null b)
           (list x)
-        (append (to-radix (quotient x (nth (1- (length b)) b))
+        (append (to-radix (quotient x (nth (dec (length b)) b))
                           (butlast b) nil)
-                (list (mod x (nth (1- (length b)) b)))))
+                (list (mod x (nth (dec (length b)) b)))))
     (to-radix (* x (apply '* c)) (append b c))))
 
 (defn clock-from-moment [tee]
@@ -393,8 +393,8 @@
         day (standard-day e-date)
         year (standard-year e-date)]
     (+ egyptian-epoch   ; Days before start of calendar
-       (* 365 (1- year)); Days in prior years
-       (* 30 (1- month)); Days in prior months this year
+       (* 365 (dec year)); Days in prior years
+       (* 30 (dec month)); Days in prior months this year
        day -1)))        ; Days so far this month
 
 (defn alt-fixed-from-egyptian [e-date]
@@ -403,7 +403,7 @@
   (+ egyptian-epoch
      (sigma ((a (list 365 30 1))
              (e-date e-date))
-            (* a (1- e-date)))))
+            (* a (dec e-date)))))
 
 (defn egyptian-from-fixed [date]
   ;; TYPE fixed-date -> egyptian-date
@@ -411,14 +411,14 @@
   (let [days                            ; Elapsed days since epoch.
         (- date egyptian-epoch)
         year                            ; Year since epoch.
-        (1+ (quotient days 365))
+        (inc (quotient days 365))
         month                       ; Calculate the month by division.
-        (1+ (quotient (mod days 365)
+        (inc (quotient (mod days 365)
                       30))
         day                        ; Calculate the day by subtraction.
         (- days
-           (* 365 (1- year))
-           (* 30 (1- month))
+           (* 365 (dec year))
+           (* 30 (dec month))
            -1)]
     (egyptian-date year month day)))
 
@@ -592,14 +592,14 @@
   (let [month (standard-month g-date)
         day (standard-day g-date)
         year (standard-year g-date)]
-    (+ (1- gregorian-epoch); Days before start of calendar
-       (* 365 (1- year)); Ordinary days since epoch
-       (quotient (1- year)
+    (+ (dec gregorian-epoch); Days before start of calendar
+       (* 365 (dec year)); Ordinary days since epoch
+       (quotient (dec year)
                  4); Julian leap days since epoch...
        (-          ; ...minus century years since epoch...
-        (quotient (1- year) 100))
+        (quotient (dec year) 100))
        (quotient   ; ...plus years since epoch divisible...
-        (1- year) 400)  ; ...by 400.
+        (dec year) 400)  ; ...by 400.
        (quotient        ; Days in prior months this year...
         (- (* 367 month) 362); ...assuming 30-day Feb
         12)
@@ -635,8 +635,8 @@
                  n1))]
     (if (or (= n100 4) (= n1 4))
         year      ; Date is day 366 in a leap year.
-      (1+ year)))); Date is ordinal day (1+ (mod d3 365))
-                                        ; in (1+ year).
+      (inc year)))); Date is ordinal day (inc (mod d3 365))
+                                        ; in (inc year).
 
 (defn gregorian-new-year [g-year]
   ;; TYPE gregorian-year -> fixed-date
@@ -654,7 +654,7 @@
   ;; TYPE gregorian-year -> range
   ;; The range of moments in Gregorian year $g-year$.
   (interval (gregorian-new-year g-year)
-            (gregorian-new-year (1+ g-year))))
+            (gregorian-new-year (inc g-year))))
 
 (defn gregorian-from-fixed [date]
   ;; TYPE fixed-date -> gregorian-date
@@ -674,7 +674,7 @@
          (+ (* 12 (+ prior-days correction)) 373)
          367)
         day                        ; Calculate the day by subtraction.
-        (1+ (- date
+        (inc (- date
                (fixed-from-gregorian
                 (gregorian-date year month 1))))]
     (gregorian-date year month day)))
@@ -690,7 +690,7 @@
   ;; TYPE gregorian-date -> positive-integer
   ;; Day number in year of Gregorian date $g-date$.
   (gregorian-date-difference
-   (gregorian-date (1- (standard-year g-date)) december 31)
+   (gregorian-date (dec (standard-year g-date)) december 31)
    g-date))
 
 (defn days-remaining [g-date]
@@ -706,9 +706,9 @@
   (gregorian-date-difference
    (gregorian-date g-year g-month 1)
    (gregorian-date (if (= g-month 12)
-                       (1+ g-year)
+                       (inc g-year)
                      g-year)
-                   (amod (1+ g-month) 12)
+                   (amod (inc g-month) 12)
                    1)))
 
 (defn alt-fixed-from-gregorian [g-date]
@@ -720,7 +720,7 @@
         year (standard-year g-date)
         m-prime (mod (- month 3) 12)
         y-prime (- year (quotient m-prime 10))]
-    (+ (1- gregorian-epoch)
+    (+ (dec gregorian-epoch)
        -306        ; Days in March...December.
        (* 365 y-prime); Ordinary days.
        (sigma ((y (to-radix y-prime (list 4 25 4)))
@@ -737,12 +737,12 @@
   ;; Alternative calculation of Gregorian (year month day)
   ;; corresponding to fixed $date$.
   (let [y (gregorian-year-from-fixed
-           (+ (1- gregorian-epoch)
+           (+ (dec gregorian-epoch)
               date
               306))
         prior-days
         (- date (fixed-from-gregorian
-                 (gregorian-date (1- y) march 1)))
+                 (gregorian-date (dec y) march 1)))
         month
         (amod (+ (quotient
                   (+ (* 5 prior-days) 2)
@@ -751,7 +751,7 @@
               12)
         year (- y (quotient (+ month 9) 12))
         day
-        (1+ (- date
+        (inc (- date
                (fixed-from-gregorian
                 (gregorian-date year month 1))))]
     (gregorian-date year month day)))
@@ -770,7 +770,7 @@
                   (* y a)))]
     (if (< date start)
         approx
-      (1+ approx))))
+      (inc approx))))
 
 (defn independence-day [g-year]
   ;; TYPE gregorian-year -> fixed-date
@@ -910,7 +910,7 @@
              (list fri)
            nil)
          (unlucky-fridays-in-range
-          (interval (1+ fri) b)))
+          (interval (inc fri) b)))
       nil)))
 
 
@@ -942,7 +942,7 @@
     ;; in week.
     (+ (nth-kday
         week sunday
-        (gregorian-date (1- year) december 28)) day)))
+        (gregorian-date (dec year) december 28)) day)))
 
 (defn iso-from-fixed [date]
   ;; TYPE fixed-date -> iso-date
@@ -951,10 +951,10 @@
         (gregorian-year-from-fixed (- date 3))
         year (if (>= date
                      (fixed-from-iso
-                      (iso-date (1+ approx) 1 1)))
-               (1+ approx)
+                      (iso-date (inc approx) 1 1)))
+               (inc approx)
                approx)
-        week (1+ (quotient
+        week (inc (quotient
                   (- date
                      (fixed-from-iso (iso-date year 1 1)))
                   7))
@@ -1003,7 +1003,7 @@
 (defn icelandic-summer [i-year]
   ;; TYPE icelandic-year -> fixed-date
   ;; Fixed date of start of Icelandic year $i-year$.
-  (let [apr19 (+ icelandic-epoch (* 365 (1- i-year))
+  (let [apr19 (+ icelandic-epoch (* 365 (dec i-year))
                  (sigma ((y (to-radix i-year (list 4 25 4)))
                          (a (list 97 24 1 0)))
                         (* y a)))]
@@ -1013,7 +1013,7 @@
   ;; TYPE icelandic-year -> fixed-date
   ;; Fixed date of start of Icelandic winter season
   ;; in Icelandic year $i-year$.
-  (- (icelandic-summer (1+ i-year)) 180))
+  (- (icelandic-summer (inc i-year)) 180))
 
 (defn fixed-from-icelandic [i-date]
   ;; TYPE icelandic-date -> fixed-date
@@ -1029,7 +1029,7 @@
         shift                     ; First day of week in prior season.
         (if (= season summer) thursday saturday)]
     (+ start
-       (* 7 (1- week)) ; Elapsed weeks.
+       (* 7 (dec week)) ; Elapsed weeks.
        (mod (- weekday shift) 7))))
 
 (defn icelandic-from-fixed [date]
@@ -1041,7 +1041,7 @@
                   146097/400)
         year (if (>= date (icelandic-summer approx))
                approx
-               (1- approx))
+               (dec approx))
         season (if (< date (icelandic-winter year))
                  summer
                  winter)
@@ -1050,7 +1050,7 @@
           (icelandic-summer year)
           (icelandic-winter year))
         week                            ; Weeks since start of season.
-        (1+ (quotient (- date start) 7))
+        (inc (quotient (- date start) 7))
         weekday (day-of-week-from-fixed date)]
     (icelandic-date year season week weekday)))
 
@@ -1058,7 +1058,7 @@
   ;; TYPE icelandic-year -> boolean
   ;; True if Icelandic $i-year$ is a leap year (53 weeks)
   ;; on the Icelandic calendar.
-  (/= (- (icelandic-summer (1+ i-year))
+  (/= (- (icelandic-summer (inc i-year))
          (icelandic-summer i-year))
       364))
 
@@ -1078,7 +1078,7 @@
                      (icelandic-summer year))
                     (t                  ; Epagomenae.
                      midsummer))]
-    (1+ (quotient (- date start) 30))))
+    (inc (quotient (- date start) 30))))
 
 
 ;;;; Section: Julian Calendar
@@ -1115,11 +1115,11 @@
         day (standard-day j-date)
         year (standard-year j-date)
         y (if (< year 0)
-            (1+ year)                   ; No year zero
+            (inc year)                   ; No year zero
             year)]
-    (+ (1- julian-epoch)  ; Days before start of calendar
-       (* 365 (1- y))     ; Ordinary days since epoch.
-       (quotient (1- y) 4); Leap days since epoch...
+    (+ (dec julian-epoch)  ; Days before start of calendar
+       (* 365 (dec y))     ; Ordinary days since epoch.
+       (quotient (dec y) 4); Leap days since epoch...
        (quotient          ; Days in prior months this year...
         (- (* 367 month) 362); ...assuming 30-day Feb
         12)
@@ -1137,7 +1137,7 @@
         (quotient (+ (* 4 (- date julian-epoch)) 1464)
                   1461)
         year (if (<= approx 0)
-               (1- approx)              ; No year 0.
+               (dec approx)              ; No year 0.
                approx)
         prior-days                      ; This year
         (- date (fixed-from-julian
@@ -1154,7 +1154,7 @@
          (+ (* 12 (+ prior-days correction)) 373)
          367)
         day                        ; Calculate the day by subtraction.
-        (1+ (- date
+        (inc (- date
                (fixed-from-julian
                 (julian-date year month 1))))]
     (julian-date year month day)))
@@ -1246,11 +1246,11 @@
         month (standard-month j-date)
         day (standard-day j-date)
         year (standard-year j-date)
-        month-prime (amod (1+ month) 12)
+        month-prime (amod (inc month) 12)
         year-prime (if (/= month-prime 1)
                      year
                      (if (/= year -1)
-                       (1+ year)
+                       (inc year)
                        1))
         kalends1 (fixed-from-roman
                   (roman-date year-prime month-prime
@@ -1259,16 +1259,16 @@
      ((= day 1) (roman-date year month kalends 1 false))
      ((<= day (nones-of-month month))
       (roman-date year month nones
-                  (1+ (- (nones-of-month month) day)) false))
+                  (inc (- (nones-of-month month) day)) false))
      ((<= day (ides-of-month month))
       (roman-date year month ides
-                  (1+ (- (ides-of-month month) day)) false))
+                  (inc (- (ides-of-month month) day)) false))
      ((or (/= month february)
           (not (julian-leap-year? year)))
       ;; After the Ides, in a month that is not February of a
       ;; leap year
       (roman-date year-prime month-prime kalends
-                  (1+ (- kalends1 date)) false))
+                  (inc (- kalends1 date)) false))
      ((< day 25)
       ;; February of a leap year, before leap day
       (roman-date year march kalends (- 30 day) false))
@@ -1305,7 +1305,7 @@
         y (standard-year (julian-from-fixed jan1))
         y-prime (if (= y -1)
                   1
-                  (1+ y))
+                  (inc y))
         ;; The possible occurrences in one year are
         date0 (fixed-from-julian
                (julian-date y j-month j-day))
@@ -1336,8 +1336,8 @@
   ;; Olympiad corresponding to Julian year $j-year$.
   (let [years (- j-year olympiad-start
                  (if (< j-year 0) 0 1))]
-    (olympiad (1+ (quotient years 4))
-              (1+ (mod years 4)))))
+    (olympiad (inc (quotient years 4))
+              (inc (mod years 4)))))
 
 (defn julian-year-from-olympiad [o-date]
   ;; TYPE olympiad -> julian-year
@@ -1345,11 +1345,11 @@
   (let [cycle (olympiad-cycle o-date)
         year (olympiad-year o-date)
         years (+ olympiad-start
-                 (* 4 (1- cycle))
+                 (* 4 (dec cycle))
                  year -1)]
     (if (< years 0)
         years
-      (1+ years))))
+      (inc years))))
 
 (defn cycle-in-gregorian [season g-year cap-L start]
   ;; TYPE (season gregorian-year positive-real moment)
@@ -1404,9 +1404,9 @@
         day (standard-day c-date)
         year (standard-year c-date)]
     (+ coptic-epoch -1  ; Days before start of calendar
-       (* 365 (1- year)); Ordinary days in prior years
+       (* 365 (dec year)); Ordinary days in prior years
        (quotient year 4); Leap days in prior years
-       (* 30 (1- month)); Days in prior months this year
+       (* 30 (dec month)); Days in prior months this year
        day)))           ; Days so far this month
 
 (defn coptic-from-fixed [date]
@@ -1416,7 +1416,7 @@
         (quotient (+ (* 4 (- date coptic-epoch)) 1463)
                   1461)
         month                       ; Calculate the month by division.
-        (1+ (quotient
+        (inc (quotient
              (- date (fixed-from-coptic
                       (coptic-date year 1 1)))
              30))
@@ -1464,7 +1464,7 @@
         date0 (fixed-from-coptic
                (coptic-date y c-month c-day))
         date1 (fixed-from-coptic
-               (coptic-date (1+ y) c-month c-day))]
+               (coptic-date (inc y) c-month c-day))]
     (list-range (list date0 date1) 
                 (gregorian-year-range g-year))))
 
@@ -1485,7 +1485,7 @@
              30)
         j-year (if (> g-year 0)         ; Julian year number.
                  g-year
-                 (1- g-year))
+                 (dec g-year))
         paschal-moon                    ; Day after full moon on
                                         ; or after March 21.
         (- (fixed-from-julian (julian-date j-year april 19))
@@ -1511,7 +1511,7 @@
 (defn easter [g-year]
   ;; TYPE gregorian-year -> fixed-date
   ;; Fixed date of Easter in Gregorian year $g-year$.
-  (let [century (1+ (quotient g-year 100))
+  (let [century (inc (quotient g-year 100))
         shifted-epact                   ; Age of moon for April 5...
         (mod
          (+ 14 (* 11 (mod g-year 19))   ;   ...by Nicaean rule
@@ -1525,7 +1525,7 @@
         (if (or (= shifted-epact 0)
                 (and (= shifted-epact 1)
                      (< 10 (mod g-year 19))))
-          (1+ shifted-epact)
+          (inc shifted-epact)
           shifted-epact)
         paschal-moon                    ; Day after full moon on
                                         ; or after March 21.
@@ -1564,11 +1564,11 @@
   (let [month (standard-month i-date)
         day (standard-day i-date)
         year (standard-year i-date)]
-    (+ (1- islamic-epoch)    ; Days before start of calendar
-       (* (1- year) 354)     ; Ordinary days since epoch.
+    (+ (dec islamic-epoch)    ; Days before start of calendar
+       (* (dec year) 354)     ; Ordinary days since epoch.
        (quotient             ; Leap days since epoch.
         (+ 3 (* 11 year)) 30)
-       (* 29 (1- month))     ; Days in prior months this year
+       (* 29 (dec month))     ; Days in prior months this year
        (quotient month 2)
        day)))                ; Days so far this month.
 
@@ -1588,7 +1588,7 @@
          (+ (* 11 prior-days) 330)
          325)
         day
-        (1+ (- date (fixed-from-islamic
+        (inc (- date (fixed-from-islamic
                      (islamic-date year month 1))))]
     (islamic-date year month day)))
 
@@ -1603,7 +1603,7 @@
         date0 (fixed-from-islamic
                (islamic-date y i-month i-day))
         date1 (fixed-from-islamic
-               (islamic-date (1+ y) i-month i-day))
+               (islamic-date (inc y) i-month i-day))
         date2 (fixed-from-islamic
                (islamic-date (+ y 2) i-month i-day))]
     ;; Combine in one list those that occur in current year
@@ -1697,7 +1697,7 @@
 (defn hebrew-leap-year? [h-year]
   ;; TYPE hebrew-year -> boolean
   ;; True if $h-year$ is a leap year on Hebrew calendar.
-  (< (mod (1+ (* 7 h-year)) 19) 7))
+  (< (mod (inc (* 7 h-year)) 19) 7))
 
 (defn last-month-of-hebrew-year [h-year]
   ;; TYPE hebrew-year -> hebrew-month
@@ -1732,7 +1732,7 @@
   ;; $h-year$.
   (let [y ;; Treat Nisan as start of year.
         (if (< h-month tishri)
-          (1+ h-year)
+          (inc h-year)
           h-year)
         months-elapsed
         (+ (- h-month tishri) ;; Months this year.
@@ -1772,7 +1772,7 @@
         ;;  (quotient (+ 12084 (* months-elapsed 765433))
         ;;            25920)))
         ]
-    (if (< (mod (* 3 (1+ days)) 7) 3); Sun, Wed, or Fri
+    (if (< (mod (* 3 (inc days)) 7) 3); Sun, Wed, or Fri
         (+ days 1) ; Delay one day.
       days)))
 
@@ -1787,9 +1787,9 @@
   ;; TYPE hebrew-year -> 0-2
   ;; Delays to start of Hebrew year $h-year$ to keep ordinary
   ;; year in range 353-356 and leap year in range 383-386.
-  (let [ny0 (hebrew-calendar-elapsed-days (1- h-year))
+  (let [ny0 (hebrew-calendar-elapsed-days (dec h-year))
         ny1 (hebrew-calendar-elapsed-days h-year)
-        ny2 (hebrew-calendar-elapsed-days (1+ h-year))]
+        ny2 (hebrew-calendar-elapsed-days (inc h-year))]
     (cond
      ((= (- ny2 ny1) 356) ; Next year would be too long.
       2)
@@ -1800,7 +1800,7 @@
 (defn days-in-hebrew-year [h-year]
   ;; TYPE hebrew-year -> {353,354,355,383,384,385}
   ;; Number of days in Hebrew year $h-year$.
-  (- (hebrew-new-year (1+ h-year))
+  (- (hebrew-new-year (inc h-year))
      (hebrew-new-year h-year)))
 
 (defn long-marheshvan? [h-year]
@@ -1839,12 +1839,12 @@
   ;; Hebrew (year month day) corresponding to fixed $date$.
   ;; The fraction can be approximated by 365.25.
   (let [approx                          ; Approximate year
-        (1+
+        (inc
          (quotient (- date hebrew-epoch) 35975351/98496))
         ;; The value 35975351/98496, the average length of
         ;; a Hebrew year, can be approximated by 365.25
         year                            ; Search forward.
-        (final y (1- approx)
+        (final y (dec approx)
                (<= (hebrew-new-year y) date))
         start                   ; Starting month for search for month.
         (if (< date (fixed-from-hebrew
@@ -1860,7 +1860,7 @@
                     m
                     (last-day-of-hebrew-month year m)))))
         day                        ; Calculate the day by subtraction.
-        (1+ (- date (fixed-from-hebrew
+        (inc (- date (fixed-from-hebrew
                      (hebrew-date year month 1))))]
     (hebrew-date year month day)))
 
@@ -1877,7 +1877,7 @@
   ;; Fixed date of Yom Kippur occurring in Gregorian year
   ;; $g-year$.
   (let [h-year
-        (1+ (- g-year
+        (inc (- g-year
                (gregorian-year-from-fixed
                 hebrew-epoch)))]
     (fixed-from-hebrew (hebrew-date h-year tishri 10))))
@@ -1924,7 +1924,7 @@
         ;; Then prior Thursday
         (- purim-date 3)
       ;; Else previous day
-      (1- purim-date))))
+      (dec purim-date))))
 
 (defn tishah-be-av [g-year]
   ;; TYPE gregorian-year -> fixed-date
@@ -1939,7 +1939,7 @@
     (if ; Ninth of Av is Saturday
         (= (day-of-week-from-fixed av9) saturday)
         ;; Then the next day
-        (1+ av9)
+        (inc av9)
       av9)))
 
 (defn birkath-ha-hama [g-year]
@@ -2013,7 +2013,7 @@
         date0 (fixed-from-hebrew
                (hebrew-date y h-month h-day))
         date1 (fixed-from-hebrew
-               (hebrew-date (1+ y) h-month h-day))
+               (hebrew-date (inc y) h-month h-day))
         date2 (fixed-from-hebrew
                (hebrew-date (+ y 2) h-month h-day))]
     (list-range (list date0 date1 date2)
@@ -2041,7 +2041,7 @@
            (kday-before wednesday iyyar4))
           ;; If it's on Sunday, then Monday
           ((= sunday (day-of-week-from-fixed iyyar4))
-           (1+ iyyar4))
+           (inc iyyar4))
           (t iyyar4))))
 
 (defn hebrew-birthday [birthdate h-year]
@@ -2073,7 +2073,7 @@
         y (standard-year (hebrew-from-fixed jan1))
         ;; The possible occurrences in one year are
         date0 (hebrew-birthday birthdate y)
-        date1 (hebrew-birthday birthdate (1+ y))
+        date1 (hebrew-birthday birthdate (inc y))
         date2 (hebrew-birthday birthdate (+ y 2))]
     ;; Combine in one list those that occur in current year.
     (list-range (list date0 date1 date2) 
@@ -2092,16 +2092,16 @@
      ;; the day before Kislev 1.
      ((and (= death-month marheshvan)
            (= death-day 30)
-           (not (long-marheshvan? (1+ death-year))))
-      (1- (fixed-from-hebrew
+           (not (long-marheshvan? (inc death-year))))
+      (dec (fixed-from-hebrew
            (hebrew-date h-year kislev 1))))
      ;; If it's Kislev 30 it depends on the first
      ;; anniversary; if that was not Kislev 30, use
      ;; the day before Tevet 1.
      ((and (= death-month kislev)
            (= death-day 30)
-           (short-kislev? (1+ death-year)))
-      (1- (fixed-from-hebrew
+           (short-kislev? (inc death-year)))
+      (dec (fixed-from-hebrew
            (hebrew-date h-year tevet 1))))
      ;; If it's Adar II, use the same day in last
      ;; month of Hebrew year (Adar or Adar II).
@@ -2132,7 +2132,7 @@
         y (standard-year (hebrew-from-fixed jan1))
         ;; The possible occurrences in one year are
         date0 (yahrzeit death-date y)
-        date1 (yahrzeit death-date (1+ y))
+        date1 (yahrzeit death-date (inc y))
         date2 (yahrzeit death-date (+ y 2))]
     ;; Combine in one list those that occur in current year
     (list-range (list date0 date1 date2)
@@ -2248,7 +2248,7 @@
   ;; Number of days into cycle of Mayan haab date $h-date$.
   (let [day (mayan-haab-day h-date)
         month (mayan-haab-month h-date)]
-    (+ (* (1- month) 20) day)))
+    (+ (* (dec month) 20) day)))
 
 (def mayan-haab-epoch
   ;; TYPE fixed-date
@@ -2262,7 +2262,7 @@
   (let [count
         (mod (- date mayan-haab-epoch) 365)
         day (mod count 20)
-        month (1+ (quotient count 20))]
+        month (inc (quotient count 20))]
     (mayan-haab-date month day)))
 
 (defn mayan-haab-on-or-before [haab date]
@@ -2380,7 +2380,7 @@
   ;; Number of elapsed days into cycle of Aztec xihuitl $x-date$.
   (let [day (aztec-xihuitl-day x-date)
         month (aztec-xihuitl-month x-date)]
-    (+ (* (1- month) 20) (1- day))))
+    (+ (* (dec month) 20) (dec day))))
 
 (def aztec-xihuitl-correlation
   ;; TYPE fixed-date
@@ -2392,8 +2392,8 @@
   ;; TYPE fixed-date -> aztec-xihuitl-date
   ;; Aztec xihuitl date of fixed $date$.
   (let [count (mod (- date aztec-xihuitl-correlation) 365)
-        day (1+ (mod count 20))
-        month (1+ (quotient count 20))]
+        day (inc (mod count 20))
+        month (inc (quotient count 20))]
     (aztec-xihuitl-date month day)))
 
 (defn aztec-xihuitl-on-or-before [xihuitl date]
@@ -2526,9 +2526,9 @@
         (+ (hindu-day-count date) (hr 6))
         year                            ; Elapsed years.
         (quotient sun arya-solar-year)
-        month (1+ (mod (quotient sun arya-solar-month)
+        month (inc (mod (quotient sun arya-solar-month)
                        12))
-        day (1+ (floor (mod sun arya-solar-month)))]
+        day (inc (floor (mod sun arya-solar-month)))]
     (hindu-solar-date year month day)))
 
 (defn fixed-from-old-hindu-solar [s-date]
@@ -2540,7 +2540,7 @@
     (ceiling
      (+ hindu-epoch ; Since start of era.
         (* year arya-solar-year) ; Days in elapsed years
-        (* (1- month) arya-solar-month) ; ...in months.
+        (* (dec month) arya-solar-month) ; ...in months.
         day (hr -30))))) ; Midnight of day.
 
 (def arya-lunar-month
@@ -2574,13 +2574,13 @@
                  (mod new-moon arya-solar-month))
              (> (mod new-moon arya-solar-month) 0))
         month                           ; Next solar month's name.
-        (1+ (mod (ceiling (/ new-moon
+        (inc (mod (ceiling (/ new-moon
                              arya-solar-month))
                  12))
         day               ; Lunar days since beginning of lunar month.
-        (1+ (mod (quotient sun arya-lunar-day) 30))
+        (inc (mod (quotient sun arya-lunar-day) 30))
         year                    ; Solar year at end of lunar month(s).
-        (1- (ceiling (/ (+ new-moon arya-solar-month)
+        (dec (ceiling (/ (+ new-moon arya-solar-month)
                         arya-solar-year)))]
     (old-hindu-lunar-date year month leap day)))
 
@@ -2593,10 +2593,10 @@
         leap (old-hindu-lunar-leap l-date)
         day (old-hindu-lunar-day l-date)
         mina                  ; One solar month before solar new year.
-        (* (1- (* 12 year)) arya-solar-month)
+        (* (dec (* 12 year)) arya-solar-month)
         lunar-new-year                  ; New moon after mina.
         (* arya-lunar-month
-           (1+ (quotient mina arya-lunar-month)))]
+           (inc (quotient mina arya-lunar-month)))]
     (ceiling
      (+ hindu-epoch
         lunar-new-year
@@ -2608,8 +2608,8 @@
                                        arya-lunar-month)))
                         month))
                month
-             (1- month)))
-        (* (1- day) arya-lunar-day) ; Lunar days.
+             (dec month)))
+        (* (dec day) arya-lunar-day) ; Lunar days.
         (hr -6))))) ; Subtract 1 if phase begins before
                                         ; sunrise.
 
@@ -2620,7 +2620,7 @@
   1577917500/364224)
 
 (defn jovian-year [date]
-  ;; TYPE fixed-date -> 1-60
+  ;; TYPE fixed-date -> dec60
   ;; Year of Jupiter cycle at fixed $date$.
   (amod (+ 27 (quotient (hindu-day-count date)
                         (/ arya-jovian-period 12)))
@@ -2630,7 +2630,7 @@
 ;;;; Section: Balinese Calendar
 
 (defn balinese-date [b1 b2 b3 b4 b5 b6 b7 b8 b9 b0]
-  ;; TYPE (boolean 1-2 1-3 1-4 1-5 1-6 1-7 1-8 1-9 0-9)
+  ;; TYPE (boolean dec2 dec3 dec4 dec5 dec6 dec7 dec8 dec9 0-9)
   ;; TYPE  -> balinese-date
   (list b1 b2 b3 b4 b5 b6 b7 b8 b9 b0))
 
@@ -2639,35 +2639,35 @@
   (first b-date))
 
 (defn bali-dwiwara [b-date]
-  ;; TYPE balinese-date -> 1-2
+  ;; TYPE balinese-date -> dec2
   (second b-date))
 
 (defn bali-triwara [b-date]
-  ;; TYPE balinese-date -> 1-3
+  ;; TYPE balinese-date -> dec3
   (third b-date))
 
 (defn bali-caturwara [b-date]
-  ;; TYPE balinese-date -> 1-4
+  ;; TYPE balinese-date -> dec4
   (fourth b-date))
 
 (defn bali-pancawara [b-date]
-  ;; TYPE balinese-date -> 1-5
+  ;; TYPE balinese-date -> dec5
   (fifth b-date))
 
 (defn bali-sadwara [b-date]
-  ;; TYPE balinese-date -> 1-6
+  ;; TYPE balinese-date -> dec6
   (sixth b-date))
 
 (defn bali-saptawara [b-date]
-  ;; TYPE balinese-date -> 1-7
+  ;; TYPE balinese-date -> dec7
   (seventh b-date))
 
 (defn bali-asatawara [b-date]
-  ;; TYPE balinese-date -> 1-8
+  ;; TYPE balinese-date -> dec8
   (eighth b-date))
 
 (defn bali-sangawara [b-date]
-  ;; TYPE balinese-date -> 1-9
+  ;; TYPE balinese-date -> dec9
   (ninth b-date))
 
 (defn bali-dasawara [b-date]
@@ -2686,53 +2686,53 @@
 
 (defn bali-luang-from-fixed [date]
   ;; TYPE fixed-date -> boolean
-  ;; Membership of $date$ in "1-day" Balinese cycle.
+  ;; Membership of $date$ in "decday" Balinese cycle.
   (evenp (bali-dasawara-from-fixed date)))
 
 (defn bali-dwiwara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-2
+  ;; TYPE fixed-date -> dec2
   ;; Position of $date$ in 2-day Balinese cycle.
   (amod (bali-dasawara-from-fixed date) 2))
 
 (defn bali-triwara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-3
+  ;; TYPE fixed-date -> dec3
   ;; Position of $date$ in 3-day Balinese cycle.
-  (1+ (mod (bali-day-from-fixed date) 3)))
+  (inc (mod (bali-day-from-fixed date) 3)))
 
 (defn bali-caturwara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-4
+  ;; TYPE fixed-date -> dec4
   ;; Position of $date$ in 4-day Balinese cycle.
   (amod (bali-asatawara-from-fixed date) 4))
 
 (defn bali-pancawara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-5
+  ;; TYPE fixed-date -> dec5
   ;; Position of $date$ in 5-day Balinese cycle.
   (amod (+ (bali-day-from-fixed date) 2) 5))
 
 (defn bali-sadwara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-6
+  ;; TYPE fixed-date -> dec6
   ;; Position of $date$ in 6-day Balinese cycle.
-  (1+ (mod (bali-day-from-fixed date) 6)))
+  (inc (mod (bali-day-from-fixed date) 6)))
 
 (defn bali-saptawara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-7
+  ;; TYPE fixed-date -> dec7
   ;; Position of $date$ in Balinese week.
-  (1+ (mod (bali-day-from-fixed date) 7)))
+  (inc (mod (bali-day-from-fixed date) 7)))
 
 (defn bali-asatawara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-8
+  ;; TYPE fixed-date -> dec8
   ;; Position of $date$ in 8-day Balinese cycle.
   (let [day (bali-day-from-fixed date)]
-    (1+ (mod
+    (inc (mod
          (max 6
               (+ 4 (mod (- day 70)
                         210)))
          8))))
 
 (defn bali-sangawara-from-fixed [date]
-  ;; TYPE fixed-date -> 1-9
+  ;; TYPE fixed-date -> dec9
   ;; Position of $date$ in 9-day Balinese cycle.
-  (1+ (mod (max 0
+  (inc (mod (max 0
                 (- (bali-day-from-fixed date) 3))
            9)))
 
@@ -2740,9 +2740,9 @@
   ;; TYPE fixed-date -> 0-9
   ;; Position of $date$ in 10-day Balinese cycle.
   (let [i                               ; Position in 5-day cycle.
-        (1- (bali-pancawara-from-fixed date))
+        (dec (bali-pancawara-from-fixed date))
         j                               ; Weekday.
-        (1- (bali-saptawara-from-fixed date))]
+        (dec (bali-saptawara-from-fixed date))]
     (mod (+ 1 (nth i (list 5 9 7 4 8))
             (nth j (list 5 4 3 7 8 6 9)))
          10)))
@@ -2763,9 +2763,9 @@
                  (bali-dasawara-from-fixed date)))
 
 (defn bali-week-from-fixed [date]
-  ;; TYPE fixed-date -> 1-30
+  ;; TYPE fixed-date -> dec30
   ;; Week number of $date$ in Balinese cycle.
-  (1+ (quotient (bali-day-from-fixed date) 7)))
+  (inc (quotient (bali-day-from-fixed date) 7)))
 
 (defn bali-on-or-before [b-date date]
   ;; TYPE (balinese-date fixed-date) -> fixed-date
@@ -2781,11 +2781,11 @@
         sangawara (bali-sangawara b-date)
         dasawara (bali-dasawara b-date)
         a5                              ; Position in 5-day subcycle.
-        (1- pancawara)
+        (dec pancawara)
         (a6                             ; Position in 6-day subcycle.
-         (1- sadwara))
+         (dec sadwara))
         (b7                             ; Position in 7-day subcycle.
-         (1- saptawara))
+         (dec saptawara))
         (b35                            ; Position in 35-day subcycle.
          (mod (+ a5 14 (* 15 (- b7 a5))) 35))
         (days                           ; Position in full cycle.
@@ -3098,7 +3098,7 @@
   (let [try (sine-offset tee location alpha)
         date (fixed-from-moment tee)
         alt (if (>= alpha 0)
-              (if early? date (1+ date))
+              (if early? date (inc date))
               (+ date (hr 12)))
         value (if (> (abs try) 1)
                 (sine-offset alt location alpha)
@@ -3216,10 +3216,10 @@
   ;; TYPE (fixed-date location) -> real
   ;; Length of nighttime temporal hour on fixed $date$ at $location$.
   ;; Returns bogus if there no sunrise or sunset on $date$.
-  (if (or (equal (sunrise (1+ date) location) bogus)
+  (if (or (equal (sunrise (inc date) location) bogus)
           (equal (sunset date location) bogus))
       bogus
-    (/ (- (sunrise (1+ date) location)
+    (/ (- (sunrise (inc date) location)
           (sunset date location))
        12)))
 
@@ -3232,14 +3232,14 @@
         h (cond ((<= 6 hour 18)         ; daytime today
                  (daytime-temporal-hour date location))
                 ((< hour 6)             ; early this morning
-                 (nighttime-temporal-hour (1- date) location))
+                 (nighttime-temporal-hour (dec date) location))
                 (t                      ; this evening
                  (nighttime-temporal-hour date location)))]
     (cond ((equal h bogus) bogus)
           ((<= 6 hour 18); daytime today
            (+ (sunrise date location) (* (- hour 6) h)))
           ((< hour 6)    ; early this morning
-           (+ (sunset (1- date) location) (* (+ hour 6) h)))
+           (+ (sunset (dec date) location) (* (+ hour 6) h)))
           (t             ; this evening
            (+ (sunset date location) (* (- hour 18) h))))))
 
@@ -3266,7 +3266,7 @@
         h                    ; Sun's altitude when shadow increases by
         (mod3 (arctan-degrees           ; ... double its length.
                (tan-degrees altitude)
-               (1+ (* 2 (tan-degrees altitude))))
+               (inc (* 2 (tan-degrees altitude))))
               -90 90)]
     (if (<= altitude (deg 0)) ; No shadow.
         bogus
@@ -3289,7 +3289,7 @@
         h                    ; Sun's altitude when shadow increases by
         (mod3 (arctan-degrees           ; ... its length.
                (tan-degrees altitude)
-               (1+ (tan-degrees altitude)))
+               (inc (tan-degrees altitude)))
               -90 90)]
     (if (<= altitude (deg 0)) ; No shadow.
         bogus
@@ -3313,7 +3313,7 @@
   ;; TYPE moment -> moment
   ;; Italian time corresponding to local time $tee_ell$.
   (let [date (fixed-from-moment tee_ell)
-        z0 (local-zero-hour (1- tee_ell))
+        z0 (local-zero-hour (dec tee_ell))
         z (local-zero-hour tee_ell)]
     (if (> tee_ell z) ; if after zero hour
         (+ tee_ell (- date -1 z)) ; then next day
@@ -3323,7 +3323,7 @@
   ;; TYPE moment -> moment
   ;; Local time corresponding to Italian time $tee$.
   (let [date (fixed-from-moment tee)
-        z (local-zero-hour (1- tee))]
+        z (local-zero-hour (dec tee))]
     (- tee (- date z))))
 
 (defn universal-from-dynamical [tee]
@@ -3867,7 +3867,7 @@
         phi (lunar-phase tee)
         n (round (- (/ (- tee t0) mean-synodic-month)
                     (/ phi (deg 360))))]
-    (nth-new-moon (final k (1- n) (< (nth-new-moon k) tee)))))
+    (nth-new-moon (final k (dec n) (< (nth-new-moon k) tee)))))
 
 (defn new-moon-at-or-after [tee]
   ;; TYPE moment -> moment
@@ -4158,7 +4158,7 @@
              u (+ approx (hr 6))
              x (< (observed-lunar-altitude x location) (deg 0))
              (< (- u l) (mn 1)))]
-    (if (< set (1+ tee))
+    (if (< set (inc tee))
         (max (standard-from-universal set location)
              date) ; May be just before to midnight.
       ;; Else no moonset this day.
@@ -4187,7 +4187,7 @@
               x (> (observed-lunar-altitude x location)
                    (deg 0))
               (< (- u l) (mn 1)))]
-    (if (< rise (1+ tee))
+    (if (< rise (inc tee))
         (max (standard-from-universal rise location)
              date) ; May be just before to midnight.
       ;; Else no moonrise this day.
@@ -4240,12 +4240,12 @@
             (floor
              (* mean-tropical-year
                 (if (< 0 year)
-                  (1- year)
+                  (dec year)
                   year)))))]     ; No year zero.
-    (+ (1- new-year)     ; Days in prior years.
+    (+ (dec new-year)     ; Days in prior years.
        (if (<= month 7)  ; Days in prior months this year.
-           (* 31 (1- month))
-         (+ (* 30 (1- month)) 6))
+           (* 31 (dec month))
+         (+ (* 30 (dec month)) 6))
        day)))            ; Days so far this month.
 
 (defn persian-from-fixed [date]
@@ -4254,19 +4254,19 @@
   ;; corresponding to fixed $date$.
   (let [new-year
         (persian-new-year-on-or-before date)
-        y (1+ (round (/ (- new-year persian-epoch)
+        y (inc (round (/ (- new-year persian-epoch)
                         mean-tropical-year)))
         year (if (< 0 y)
                y
-               (1- y))                  ; No year zero
-        day-of-year (1+ (- date
+               (dec y))                  ; No year zero
+        day-of-year (inc (- date
                            (fixed-from-persian
                             (persian-date year 1 1))))
         month (if (<= day-of-year 186)
                 (ceiling (/ day-of-year 31))
                 (ceiling (/ (- day-of-year 6) 30)))
         day                         ; Calculate the day by subtraction
-        (- date (1- (fixed-from-persian
+        (- date (dec (fixed-from-persian
                      (persian-date year month 1))))]
     (persian-date year month day)))
 
@@ -4296,18 +4296,18 @@
           (- p-year 473))     ; No year zero
         year                  ; Equivalent year in the range 474..3263
         (+ (mod y 2820) 474)]
-    (+ (1- persian-epoch); Days before epoch
+    (+ (dec persian-epoch); Days before epoch
        (* 1029983        ; Days in 2820-year cycles
                                         ; before Persian year 474
           (quotient y 2820))
-       (* 365 (1- year)) ; Nonleap days in prior years this
+       (* 365 (dec year)) ; Nonleap days in prior years this
                                         ; 2820-year cycle
        (quotient         ; Leap days in prior years this
                                         ; 2820-year cycle
         (- (* 31 year) 5) 128)
        (if (<= month 7)  ; Days in prior months this year
-           (* 31 (1- month))
-         (+ (* 30 (1- month)) 6))
+           (* 31 (dec month))
+         (+ (* 30 (dec month)) 6))
        day)))            ; Days so far this month
 
 (defn arithmetic-persian-year-from-fixed [date]
@@ -4336,20 +4336,20 @@
                                         ; cycle
     (if (< 0 year)
         year
-      (1- year)))); No year zero
+      (dec year)))); No year zero
 
 (defn arithmetic-persian-from-fixed [date]
   ;; TYPE fixed-date -> persian-date
   ;; Persian date corresponding to fixed $date$.
   (let [year (arithmetic-persian-year-from-fixed date)
-        day-of-year (1+ (- date
+        day-of-year (inc (- date
                            (fixed-from-arithmetic-persian
                             (persian-date year 1 1))))
         month (if (<= day-of-year 186)
                 (ceiling (/ day-of-year 31))
                 (ceiling (/ (- day-of-year 6) 30)))
         day                         ; Calculate the day by subtraction
-        (- date (1- (fixed-from-arithmetic-persian
+        (- date (dec (fixed-from-arithmetic-persian
                      (persian-date year month 1))))]
     (persian-date year month day)))
 
@@ -4358,12 +4358,12 @@
   ;; Fixed date of Persian New Year (Nowruz) in Gregorian
   ;; year $g-year$.
   (let [persian-year
-        (1+ (- g-year
+        (inc (- g-year
                (gregorian-year-from-fixed
                 persian-epoch)))
         y (if (<= persian-year 0)
             ;; No Persian year 0
-            (1- persian-year)
+            (dec persian-year)
             persian-year)]
     (fixed-from-persian (persian-date y 1 1))))
 
@@ -4414,18 +4414,18 @@
         month (bahai-month b-date)
         day (bahai-day b-date)
         g-year                         ; Corresponding Gregorian year.
-        (+ (* 361 (1- major))
-           (* 19 (1- cycle)) year -1
+        (+ (* 361 (dec major))
+           (* 19 (dec cycle)) year -1
            (gregorian-year-from-fixed bahai-epoch))]
     (+ (fixed-from-gregorian ; Prior years.
         (gregorian-date g-year march 20))
        (cond ((= month ayyam-i-ha) ; Intercalary period.
               342) ; 18 months have elapsed.
              ((= month 19); Last month of year.
-              (if (gregorian-leap-year? (1+ g-year))
+              (if (gregorian-leap-year? (inc g-year))
                   347  ; Long ayyam-i-ha.
                 346)); Ordinary ayyam-i-ha.
-             (t (* 19 (1- month)))); Elapsed months.
+             (t (* 19 (dec month)))); Elapsed months.
        day))) ; Days of current month.
 
 (defn bahai-from-fixed [date]
@@ -4441,9 +4441,9 @@
                    (fixed-from-gregorian
                     (gregorian-date g-year march 20)))
              1 0))
-        major (1+ (quotient years 361))
-        cycle (1+ (quotient (mod years 361) 19))
-        year (1+ (mod years 19))
+        major (inc (quotient years 361))
+        cycle (inc (quotient (mod years 361) 19))
+        year (inc (mod years 19))
         days                            ; Since start of year
         (- date (fixed-from-bahai
                  (bahai-date major cycle year 1 1)))
@@ -4457,7 +4457,7 @@
                     (bahai-date major cycle year
                                 ayyam-i-ha 1)))
                ayyam-i-ha)              ; Intercalary period.
-              (t (1+ (quotient days 19))))
+              (t (inc (quotient days 19))))
         day (- date -1
                (fixed-from-bahai
                 (bahai-date major cycle year month 1)))]
@@ -4490,7 +4490,7 @@
   (let [approx                          ; Approximate time of equinox.
         (estimate-prior-solar-longitude
          spring (bahai-sunset date))]
-    (next day (1- (floor approx))
+    (next day (dec (floor approx))
           (<= (solar-longitude (bahai-sunset day))
               (+ spring (deg 2))))))
 
@@ -4503,8 +4503,8 @@
         month (bahai-month b-date)
         day (bahai-day b-date)
         years                           ; Years from epoch
-        (+ (* 361 (1- major))
-           (* 19 (1- cycle))
+        (+ (* 361 (dec major))
+           (* 19 (dec cycle))
            year)]
     (cond ((= month 19); last month of year
            (+ (astro-bahai-new-year-on-or-before
@@ -4523,7 +4523,7 @@
                  (+ bahai-epoch
                     (floor (* mean-tropical-year
                               (- years 1/2)))))
-                (* (1- month) 19)
+                (* (dec month) 19)
                 day -1)))))
 
 (defn astro-bahai-from-fixed [date]
@@ -4532,9 +4532,9 @@
   (let [new-year (astro-bahai-new-year-on-or-before date)
         years (round (/ (- new-year bahai-epoch)
                         mean-tropical-year))
-        major (1+ (quotient years 361))
-        cycle (1+ (quotient (mod years 361) 19))
-        year (1+ (mod years 19))
+        major (inc (quotient years 361))
+        cycle (inc (quotient (mod years 361) 19))
+        year (inc (mod years 19))
         days                            ; Since start of year
         (- date new-year)
         month
@@ -4548,7 +4548,7 @@
                 (bahai-date major cycle year ayyam-i-ha 1)))
                                         ; intercalary month
            ayyam-i-ha)
-          (t (1+ (quotient days 19))))
+          (t (inc (quotient days 19))))
         day (- date -1
                (fixed-from-astro-bahai
                 (bahai-date major cycle year month 1)))]
@@ -4559,7 +4559,7 @@
   ;; Fixed date of Baha'i New Year (Naw-Ruz) in Gregorian
   ;; year $g-year$.
   (astro-bahai-new-year-on-or-before
-   (gregorian-new-year (1+ g-year))))
+   (gregorian-new-year (inc g-year))))
 
 (defn feast-of-ridvan [g-year]
   ;; TYPE gregorian-year -> fixed-date
@@ -4578,7 +4578,7 @@
         day (fixed-from-moment m8)
         set8 (bahai-sunset day)]
     (if (< m8 set8)
-        (1+ day)
+        (inc day)
       (+ day 2))))
 
 
@@ -4628,9 +4628,9 @@
         (french-new-year-on-or-before
          (floor (+ french-epoch 180     ; Spring after epoch.
                    (* mean-tropical-year
-                      (1- year)))))]
+                      (dec year)))))]
     (+ new-year -1      ;  Days in prior years
-       (* 30 (1- month));  Days in prior months
+       (* 30 (dec month));  Days in prior months
        day)))           ;  Days this month
 
 (defn french-from-fixed [date]
@@ -4638,10 +4638,10 @@
   ;; French Revolutionary date of fixed $date$.
   (let [new-year
         (french-new-year-on-or-before date)
-        year (1+ (round (/ (- new-year french-epoch)
+        year (inc (round (/ (- new-year french-epoch)
                            mean-tropical-year)))
-        month (1+ (quotient (- date new-year) 30))
-        day (1+ (mod (- date new-year) 30))]
+        month (inc (quotient (- date new-year) 30))
+        day (inc (mod (- date new-year) 30))]
     (french-date year month day)))
 
 (defn french-leap-year? [f-year]
@@ -4649,7 +4649,7 @@
   ;; True if $f-year$ is a leap year on the
   ;; French Revolutionary calendar.
   (> (- (fixed-from-french
-         (french-date (1+ f-year) 1 1))
+         (french-date (inc f-year) 1 1))
         (fixed-from-french
          (french-date f-year 1 1)))
      365))
@@ -4670,13 +4670,13 @@
         day (standard-day f-date)
         year (standard-year f-date)]
     (+ french-epoch -1; Days before start of calendar.
-       (* 365 (1- year)); Ordinary days in prior years.
+       (* 365 (dec year)); Ordinary days in prior years.
                         ; Leap days in prior years.
-       (quotient (1- year) 4)
-       (- (quotient (1- year) 100))
-       (quotient (1- year) 400)
-       (- (quotient (1- year) 4000))
-       (* 30 (1- month)); Days in prior months this year.
+       (quotient (dec year) 4)
+       (- (quotient (dec year) 100))
+       (quotient (dec year) 400)
+       (- (quotient (dec year) 4000))
+       (* 30 (dec month)); Days in prior months this year.
        day))); Days this month.
 
 (defn arithmetic-french-from-fixed [date]
@@ -4684,20 +4684,20 @@
   ;; Arithmetic French Revolutionary date (year month day)
   ;; of fixed $date$.
   (let [approx                   ; Approximate year (may be off by 1).
-        (1+ (quotient (- date french-epoch -2)
+        (inc (quotient (- date french-epoch -2)
                       1460969/4000))
         year (if (< date
                     (fixed-from-arithmetic-french
                      (french-date approx 1 1)))
-               (1- approx)
+               (dec approx)
                approx)
         month                       ; Calculate the month by division.
-        (1+ (quotient
+        (inc (quotient
              (- date (fixed-from-arithmetic-french
                       (french-date year 1 1)))
              30))
         day                        ; Calculate the day by subtraction.
-        (1+ (- date
+        (inc (- date
                (fixed-from-arithmetic-french
                 (french-date year month 1))))]
     (french-date year month day)))
@@ -4847,9 +4847,9 @@
   (let [approx                         ; Approximate time of solstice.
         (estimate-prior-solar-longitude
          winter (midnight-in-china (+ date 1)))]
-    (next day (1- (floor approx))
+    (next day (dec (floor approx))
           (< winter (solar-longitude
-                     (midnight-in-china (1+ day)))))))
+                     (midnight-in-china (inc day)))))))
 
 (defn chinese-new-year-in-sui [date]
   ;; TYPE fixed-date -> fixed-date
@@ -4861,11 +4861,11 @@
         (chinese-winter-solstice-on-or-before
          (+ s1 370))
         m12             ; month after 11th month--either 12 or leap 11
-        (chinese-new-moon-on-or-after (1+ s1))
+        (chinese-new-moon-on-or-after (inc s1))
         m13             ; month after m12--either 12 (or leap 12) or 1
-        (chinese-new-moon-on-or-after (1+ m12))
+        (chinese-new-moon-on-or-after (inc m12))
         next-m11                        ; next 11th month
-        (chinese-new-moon-before (1+ s2))]
+        (chinese-new-moon-before (inc s2))]
     (if ; Either m12 or m13 is a leap month if there are
         ; 13 new moons (12 full lunar months) and
         ; either m12 or m13 has no major solar term
@@ -4874,7 +4874,7 @@
                 12)
              (or (chinese-no-major-solar-term? m12)
                  (chinese-no-major-solar-term? m13)))
-        (chinese-new-moon-on-or-after (1+ m13))
+        (chinese-new-moon-on-or-after (inc m13))
       m13)))
 
 (defn chinese-new-year-on-or-before [date]
@@ -4903,11 +4903,11 @@
         s2                              ; Following solstice
         (chinese-winter-solstice-on-or-before (+ s1 370))
         m12                             ; month after last 11th month
-        (chinese-new-moon-on-or-after (1+ s1))
+        (chinese-new-moon-on-or-after (inc s1))
         next-m11                        ; next 11th month
-        (chinese-new-moon-before (1+ s2))
+        (chinese-new-moon-before (inc s2))
         m                             ; start of month containing date
-        (chinese-new-moon-before (1+ date))
+        (chinese-new-moon-before (inc date))
         leap-year                 ; if there are 13 new moons (12 full
                                         ; lunar months)
         (= (round (/ (- next-m11 m12)
@@ -4937,9 +4937,9 @@
                   (- (/ month 12)) ; after at start of year
                   (/ (- date chinese-epoch)
                      mean-tropical-year)))
-        cycle (1+ (quotient (1- elapsed-years) 60))
+        cycle (inc (quotient (dec elapsed-years) 60))
         year (amod elapsed-years 60)
-        day (1+ (- date m))]
+        day (inc (- date m))]
     (chinese-date cycle year month leap-month day)))
 
 (defn fixed-from-chinese [c-date]
@@ -4953,15 +4953,15 @@
         mid-year                        ;  Middle of the Chinese year
         (floor
          (+ chinese-epoch
-            (* (+ (* (1- cycle) 60)     ; years in prior cycles
-                  (1- year)             ; prior years this cycle
+            (* (+ (* (dec cycle) 60)     ; years in prior cycles
+                  (dec year)             ; prior years this cycle
                   1/2)                  ; half a year
                mean-tropical-year)))
         new-year (chinese-new-year-on-or-before mid-year)
         p                 ; new moon before date--a month too early if
                                         ; there was prior leap month that year
         (chinese-new-moon-on-or-after
-         (+ new-year (* (1- month) 29)))
+         (+ new-year (* (dec month) 29)))
         d (chinese-from-fixed p)
         prior-new-moon
         (if                             ; If the months match...
@@ -4970,7 +4970,7 @@
             p          ; ...that's the right month
             ;; otherwise, there was a prior leap month that
             ;; year, so we want the next month
-            (chinese-new-moon-on-or-after (1+ p)))]
+            (chinese-new-moon-on-or-after (inc p)))]
     (+ prior-new-moon day -1)))
 
 (defn chinese-prior-leap-month? [m-prime m]
@@ -5034,8 +5034,8 @@
   ;; TYPE (chinese-month chinese-year) -> chinese-name
   ;; Sexagesimal name for month $month$ of Chinese year
   ;; $year$.
-  (let [elapsed-months (+ (* 12 (1- year))
-                          (1- month))]
+  (let [elapsed-months (+ (* 12 (dec year))
+                          (dec month))]
     (chinese-sexagesimal-name
      (- elapsed-months chinese-month-name-epoch))))
 
@@ -5063,10 +5063,10 @@
   ;; Fixed date of the Dragon Festival occurring in
   ;; Gregorian year $g-year$.
   (let [elapsed-years
-        (1+ (- g-year
+        (inc (- g-year
                (gregorian-year-from-fixed
                 chinese-epoch)))
-        cycle (1+ (quotient (1- elapsed-years) 60))
+        cycle (inc (quotient (dec elapsed-years) 60))
         year (amod elapsed-years 60)]
     (fixed-from-chinese (chinese-date cycle year 5 false 5))))
 
@@ -5119,11 +5119,11 @@
   (let [new-year (fixed-from-chinese
                   (chinese-date cycle year 1 false 1))
         c (if (= year 60)               ; next year's cycle
-            (1+ cycle)
+            (inc cycle)
             cycle)
         y (if (= year 60)               ; next year's number
             1
-            (1+ year))
+            (inc year))
         next-new-year (fixed-from-chinese
                        (chinese-date c y 1 false 1))
         first-minor-term
@@ -5254,7 +5254,7 @@
   (if (< amp 0) (- (hindu-arcsin (- amp)))
       (let [pos (next k 0 (<= amp (hindu-sine-table k)))
             below                       ; Lower value in table.
-            (hindu-sine-table (1- pos))]
+            (hindu-sine-table (dec pos))]
       (* (angle 0 225 0)
          (+ pos -1  ; Interpolate.
             (/ (- amp below)
@@ -5323,7 +5323,7 @@
   ;; TYPE rational-moment -> hindu-solar-month
   ;; Zodiacal sign of the sun, as integer in range 1..12,
   ;; at moment $tee$.
-  (1+ (quotient (hindu-solar-longitude tee) (deg 30))))
+  (inc (quotient (hindu-solar-longitude tee) (deg 30))))
 
 (defn hindu-lunar-longitude [tee]
   ;; TYPE rational-moment -> rational-angle
@@ -5343,7 +5343,7 @@
   ;; TYPE rational-moment -> hindu-lunar-day
   ;; Phase of moon (tithi) at moment $tee$, as an integer in
   ;; the range 1..30.
-  (1+ (quotient (hindu-lunar-phase tee) (deg 12))))
+  (inc (quotient (hindu-lunar-phase tee) (deg 12))))
 
 (defn hindu-new-moon-before [tee]
   ;; TYPE rational-moment -> rational-moment
@@ -5354,8 +5354,8 @@
         (- tee (* (/ 1 (deg 360)) (hindu-lunar-phase tee)
                   hindu-synodic-month))]
     (binary-search ; Search for phase start.
-     l (1- tau)
-     u (min tee (1+ tau))
+     l (dec tau)
+     u (min tee (inc tau))
      x (< (hindu-lunar-phase x) (deg 180))
      (or (= (hindu-zodiac l) (hindu-zodiac u))
          (< (- u l) varepsilon)))))
@@ -5365,7 +5365,7 @@
   ;; Time lunar-day (tithi) number $k$ begins at or after
   ;; moment $tee$.  $k$ can be fractional (for karanas).
   (let [phase                           ; Degrees corresponding to k.
-        (* (1- k) (deg 12))
+        (* (dec k) (deg 12))
         tau                            ; Mean occurrence of lunar-day.
         (+ tee (* (/ 1 (deg 360))
                   (mod (- phase (hindu-lunar-phase tee))
@@ -5393,7 +5393,7 @@
   ;; TYPE fixed-date -> hindu-solar-date
   ;; Hindu (Orissa) solar date equivalent to fixed $date$.
   (let [critical                        ; Sunrise on Hindu date.
-        (hindu-sunrise (1+ date))
+        (hindu-sunrise (inc date))
         month (hindu-zodiac critical)
         year (- (hindu-calendar-year critical)
                 hindu-solar-era)
@@ -5403,7 +5403,7 @@
                 (deg 30)))
         start                        ; Search forward for beginning...
         (next i approx               ; ... of month.
-              (= (hindu-zodiac (hindu-sunrise (1+ i)))
+              (= (hindu-zodiac (hindu-sunrise (inc i)))
                  month))
         day (- date start -1)]
     (hindu-solar-date year month day)))
@@ -5418,13 +5418,13 @@
         start                           ; Approximate start of month
                                         ; by adding days...
         (+ (floor (* (+ year hindu-solar-era
-                        (/ (1- month) 12))        ; in months...
+                        (/ (dec month) 12))        ; in months...
                      hindu-sidereal-year))        ; ... and years
            hindu-epoch)]   ; and days before RD 0.
     ;; Search forward to correct month
     (+ day -1
        (next d (- start 3)
-             (= (hindu-zodiac (hindu-sunrise (1+ d)))
+             (= (hindu-zodiac (hindu-sunrise (inc d)))
                 month)))))
 
 (def hindu-lunar-era
@@ -5452,7 +5452,7 @@
         leap-month                  ; If begins and ends in same sign.
         (= solar-month (hindu-zodiac next-new-moon))
         month                           ; Month of lunar year.
-        (amod (1+ solar-month) 12)
+        (amod (inc solar-month) 12)
         year                            ; Solar year at end of month.
         (- (hindu-calendar-year
             (if (<= month 2)            ; $date$ might precede solar
@@ -5474,13 +5474,13 @@
         (+ hindu-epoch
            (* hindu-sidereal-year
               (+ year hindu-lunar-era
-                 (/ (1- month) 12))))
+                 (/ (dec month) 12))))
         s (floor
            (- approx
               (* hindu-sidereal-year
                  (mod3 (- (/ (hindu-solar-longitude approx)
                              (deg 360))
-                          (/ (1- month) 12))
+                          (/ (dec month) 12))
                        -1/2 1/2))))
         k (hindu-lunar-day-from-moment (+ s (hr 6)))
         est
@@ -5503,11 +5503,11 @@
                          (+ est (hr 6)))
                         day)
                      -15 15))
-        date (next d (1- tau)
+        date (next d (dec tau)
                    (member (hindu-lunar-day-from-moment
                             (hindu-sunrise d))
-                           (list day (amod (1+ day) 30))))]
-    (if leap-day (1+ date) date)))
+                           (list day (amod (inc day) 30))))]
+    (if leap-day (inc date) date)))
 
 (defn hindu-equation-of-time [date]
   ;; TYPE fixed-date -> rational-moment
@@ -5580,11 +5580,11 @@
         (- 14/360 (/ (abs (hindu-sine anomaly)) 1080))
         entry (quotient anomaly (angle 0 225 0))
         sine-table-step                 ; Marginal change in anomaly
-        (- (hindu-sine-table (1+ entry))
+        (- (hindu-sine-table (inc entry))
            (hindu-sine-table entry))
         factor
         (* -3438/225 sine-table-step epicycle)]
-    (* mean-motion (1+ factor))))
+    (* mean-motion (inc factor))))
 
 (defn hindu-solar-sidereal-difference [date]
   ;; TYPE fixed-date -> rational-angle
@@ -5652,9 +5652,9 @@
         leap-day (hindu-lunar-leap-day l-date)
         m (cond ((or leap-month (<= day 15))
                  month)
-                ((hindu-expunged? year (amod (1- month) 12))
+                ((hindu-expunged? year (amod (dec month) 12))
                  (amod (- month 2) 12))
-                (t (amod (1- month) 12)))]
+                (t (amod (dec month) 12)))]
     (fixed-from-hindu-lunar
      (hindu-lunar-date year m leap-month day leap-day))))
 
@@ -5685,13 +5685,13 @@
         time (time-from-moment tee)
         q (floor (* 4 time))            ; quarter of day
         a (cond ((= q 0)                ; early this morning
-                 (hindu-sunset (1- date)))
+                 (hindu-sunset (dec date)))
                 ((= q 3)                ; this evening
                  (hindu-sunset date))
                 (t                      ;  daytime today
                  (hindu-sunrise date)))
         b (cond ((= q 0) (hindu-sunrise date))
-                ((= q 3) (hindu-sunrise (1+ date)))
+                ((= q 3) (hindu-sunrise (inc date)))
                 (t (hindu-sunset date)))]
     (+ a (* 2 (- b a) (- time
                          (cond ((= q 3) (hr 18))
@@ -5713,7 +5713,7 @@
   ;; TYPE moment -> hindu-solar-month
   ;; Sidereal zodiacal sign of the sun, as integer in range
   ;; 1..12, at moment $tee$.
-  (1+ (quotient (sidereal-solar-longitude tee) (deg 30))))
+  (inc (quotient (sidereal-solar-longitude tee) (deg 30))))
 
 (defn astro-hindu-calendar-year [tee]
   ;; TYPE moment -> hindu-solar-year
@@ -5753,7 +5753,7 @@
         approx                    ; 3 days before start of mean month.
         (+ hindu-epoch -3
            (floor (* (+ (+ year hindu-solar-era)
-                        (/ (1- month) 12))
+                        (/ (dec month) 12))
                      mean-sidereal-year)))
         start                        ; Search forward for beginning...
         (next i approx               ; ... of month.
@@ -5765,7 +5765,7 @@
   ;; TYPE moment -> hindu-lunar-day
   ;; Phase of moon (tithi) at moment $tee$, as an integer in
   ;; the range 1..30.
-  (1+ (quotient (lunar-phase tee) (deg 12))))
+  (inc (quotient (lunar-phase tee) (deg 12))))
 
 (defn astro-hindu-lunar-from-fixed [date]
   ;; TYPE fixed-date -> hindu-lunar-date
@@ -5786,7 +5786,7 @@
         leap-month                  ; If begins and ends in same sign.
         (= solar-month (sidereal-zodiac next-new-moon))
         month                           ; Month of lunar year.
-        (amod (1+ solar-month) 12)
+        (amod (inc solar-month) 12)
         year                            ; Solar year at end of month.
         (- (astro-hindu-calendar-year
             (if (<= month 2)            ; $date$ might precede solar
@@ -5808,13 +5808,13 @@
         (+ hindu-epoch
            (* mean-sidereal-year
               (+ year hindu-lunar-era
-                 (/ (1- month) 12))))
+                 (/ (dec month) 12))))
         s (floor
            (- approx
               (* hindu-sidereal-year
                  (mod3 (- (/ (sidereal-solar-longitude approx)
                              (deg 360))
-                          (/ (1- month) 12))
+                          (/ (dec month) 12))
                        -1/2 1/2))))
         k (astro-lunar-day-from-moment (+ s (hr 6)))
         est
@@ -5837,17 +5837,17 @@
                          (+ est (hr 6)))
                         day)
                      -15 15))
-        date (next d (1- tau)
+        date (next d (dec tau)
                    (member (astro-lunar-day-from-moment
                             (alt-hindu-sunrise d))
-                           (list day (amod (1+ day) 30))))]
-    (if leap-day (1+ date) date)))
+                           (list day (amod (inc day) 30))))]
+    (if leap-day (inc date) date)))
 
 (defn hindu-lunar-station [date]
   ;; TYPE fixed-date -> nakshatra
   ;; Hindu lunar station (nakshatra) at sunrise on $date$.
   (let [critical (hindu-sunrise date)]
-    (1+ (quotient (hindu-lunar-longitude critical) 
+    (inc (quotient (hindu-lunar-longitude critical) 
                   (angle 0 800 0)))))
 
 (defn hindu-solar-longitude-at-or-after [lambda tee]
@@ -5894,7 +5894,7 @@
        ;; unless lunar day ends before next sunrise.
        (if (or (< new-moon critical)
                (= (hindu-lunar-day-from-moment
-                   (hindu-sunrise (1+ h-day))) 2))
+                   (hindu-sunrise (inc h-day))) 2))
            0 1))))
 
 (defn hindu-lunar-on-or-before? [l-date1 l-date2]
@@ -5942,13 +5942,13 @@
                           (hindu-lunar-leap-month mid)
                           l-day false)]
     (cond (expunged?
-           (1- (next d try
+           (dec (next d try
                      (not
                       (hindu-lunar-on-or-before?
                        (hindu-lunar-from-fixed d) l-date)))))
           ((/= l-day (hindu-lunar-day
                       (hindu-lunar-from-fixed try)))
-           (1- try))
+           (dec try))
           (t try))))
 
 (defn hindu-lunar-holiday [l-month l-day g-year]
@@ -5960,7 +5960,7 @@
                 (hindu-lunar-from-fixed
                  (gregorian-new-year g-year)))
         date0 (hindu-date-occur l-year l-month l-day)
-        date1 (hindu-date-occur (1+ l-year) l-month l-day)]
+        date1 (hindu-date-occur (inc l-year) l-month l-day)]
     (list-range (list date0 date1)
                 (gregorian-year-range g-year))))
 
@@ -5986,7 +5986,7 @@
                 (standard-from-sundial (+ try 1 tee) ujjain))
                (* 12 tithi)))
         try
-      (1+ try))))
+      (inc try))))
 
 (defn hindu-lunar-event [l-month tithi tee g-year]
   ;; TYPE (hindu-lunar-month rational rational
@@ -5999,7 +5999,7 @@
                  (gregorian-new-year g-year)))
         date0 (hindu-tithi-occur l-month tithi tee l-year)
         date1 (hindu-tithi-occur
-               l-month tithi tee (1+ l-year))]
+               l-month tithi tee (inc l-year))]
     (list-range (list date0 date1)
                 (gregorian-year-range g-year))))
 
@@ -6016,17 +6016,17 @@
   (hindu-lunar-event 1 9 (hr 12) g-year))
 
 (defn karana [n]
-  ;; TYPE 1-60 -> 0-10
-  ;; Number (0-10) of the name of the $n$-th (1-60) Hindu
+  ;; TYPE dec60 -> 0-10
+  ;; Number (0-10) of the name of the $n$-th (dec60) Hindu
   ;; karana.
   (cond ((= n 1) 0)
         ((> n 57) (- n 50))
-        (t (amod (1- n) 7))))
+        (t (amod (dec n) 7))))
 
 (defn yoga [date]
-  ;; TYPE fixed-date -> 1-27
+  ;; TYPE fixed-date -> dec27
   ;; Hindu yoga on $date$.
-  (1+ (floor (mod (/ (+ (hindu-solar-longitude date)
+  (inc (floor (mod (/ (+ (hindu-solar-longitude date)
                         (hindu-lunar-longitude date))
                      (angle 0 800 0))
                   27))))
@@ -6052,7 +6052,7 @@
              (list wed)
            nil)
          (sacred-wednesdays-in-range
-          (interval (1+ wed) b)))
+          (interval (inc wed) b)))
       nil)))
 
 
@@ -6123,7 +6123,7 @@
         day (tibetan-day t-date)
         leap-day (tibetan-leap-day t-date)
         months                          ; Lunar month count.
-        (floor (+ (* 804/65 (1- year)) (* 67/65 month)
+        (floor (+ (* 804/65 (dec year)) (* 67/65 month)
                   (if leap-month -1 0) 64/65))
         days                            ; Lunar day count.
         (+ (* 30 months) day)
@@ -6164,14 +6164,14 @@
               (tibetan-date year0 month0 false d false))))
         leap-month (> day0 30)
         day (amod day0 30)
-        month (amod (cond ((> day day0) (1- month0))
-                          (leap-month (1+ month0))
+        month (amod (cond ((> day day0) (dec month0))
+                          (leap-month (inc month0))
                           (t month0))
                     12)
         year (cond ((and (> day day0) (= month0 1)) 
-                    (1- year0))
+                    (dec year0))
                    ((and leap-month (= month0 12)) 
-                    (1+ year0))
+                    (inc year0))
                    (t year0))
         leap-day
         (= date
@@ -6222,7 +6222,7 @@
   (let [dec31 (gregorian-year-end g-year)
         t-year (tibetan-year (tibetan-from-fixed dec31))]
     (list-range
-     (list (losar (1- t-year))
+     (list (losar (dec t-year))
            (losar t-year))
      (gregorian-year-range g-year))))
 
@@ -6282,12 +6282,12 @@
   ;; TYPE (fixed-date location) -> boolean
   ;; Moonlag criterion for visibility of crescent moon on 
   ;; eve of $date$ in Babylon.
-  (let [set (sunset (1- date) babylon)
+  (let [set (sunset (dec date) babylon)
         tee (universal-from-standard set babylon)
         phase (lunar-phase tee)]
     (and (< new phase first-quarter)
          (<= (new-moon-before tee) (- tee (hr 24)))
-         (> (moonlag (1- date) babylon) (mn 48)))))
+         (> (moonlag (dec date) babylon) (mn 48)))))
 
 (defn babylonian-new-month-on-or-before [date]
   ;; TYPE fixed-date -> fixed-date
@@ -6315,9 +6315,9 @@
         (if (or leap 
                 (and (= (mod year 19) 18)
                      (> month 6))) 
-          month (1- month))
+          month (dec month))
         months                          ; Elapsed months since epoch.
-        (+ (quotient (+ (* (1- year) 235) 13) 19)
+        (+ (quotient (+ (* (dec year) 235) 13) 19)
            month1)
         midmonth                        ; Middle of given month.
         (+ babylonian-epoch
@@ -6333,18 +6333,18 @@
         months                          ; Elapsed months since epoch.
         (round (/ (- crescent babylonian-epoch) 
                   mean-synodic-month))
-        year (1+ (quotient (+ (* 19 months) 5) 235))   
+        year (inc (quotient (+ (* 19 months) 5) 235))   
         approx                         ; Approximate date of new year.
         (+ babylonian-epoch
-           (round (* (quotient (+ (* (1- year) 235) 13) 19) 
+           (round (* (quotient (+ (* (dec year) 235) 13) 19) 
                      mean-synodic-month)))
         new-year (babylonian-new-month-on-or-before
                   (+ approx 15))
-        month1 (1+ (round (/ (- crescent new-year) 29.5L0)))
+        month1 (inc (round (/ (- crescent new-year) 29.5L0)))
         special (= (mod year 19) 18)
         leap (if special (= month1 7) (= month1 13))
         month (if (or leap (and special (> month1 6)))
-                (1- month1)
+                (dec month1)
                 month1)
         day (- date crescent -1)]
     (babylonian-date year month leap day)))
@@ -6374,7 +6374,7 @@
         age (- date moon)
         tau               ; Check if not visible yet on eve of $date$.
         (if (or (<= 4 age)
-                (visible-crescent (1- date) location))
+                (visible-crescent (dec date) location))
           (+ moon 29)                   ; Next new moon
           date)]
     (next d tau (visible-crescent d location))))
@@ -6394,7 +6394,7 @@
         year (standard-year i-date)
         midmonth                        ; Middle of given month.
         (+ islamic-epoch
-           (floor (* (+ (* (1- year) 12)
+           (floor (* (+ (* (dec year) 12)
                         month -1/2)
                      mean-synodic-month)))]
     (+ (phasis-on-or-before ; First day of month.
@@ -6410,9 +6410,9 @@
         elapsed-months
         (round (/ (- crescent islamic-epoch)
                   mean-synodic-month))
-        year (1+ (quotient elapsed-months 12))
-        month (1+ (mod elapsed-months 12))
-        day (1+ (- date crescent))]
+        year (inc (quotient elapsed-months 12))
+        month (inc (mod elapsed-months 12))
+        day (inc (- date crescent))]
     (islamic-date year month day)))
 
 (def jerusalem
@@ -6441,11 +6441,11 @@
 (defn saudi-criterion [date]
   ;; TYPE fixed-date -> boolean
   ;; Saudi visibility criterion on eve of fixed $date$ in Mecca.
-  (let [set (sunset (1- date) mecca)
+  (let [set (sunset (dec date) mecca)
         tee (universal-from-standard set mecca)
         phase (lunar-phase tee)]
     (and (< new phase first-quarter)
-         (> (moonlag (1- date) mecca) 0))))
+         (> (moonlag (dec date) mecca) 0))))
 
 (defn saudi-new-month-on-or-before [date]
   ;; TYPE fixed-date -> fixed-date
@@ -6470,7 +6470,7 @@
         year (standard-year s-date)
         midmonth                        ; Middle of given month.
         (+ islamic-epoch
-           (floor (* (+ (* (1- year) 12)
+           (floor (* (+ (* (dec year) 12)
                         month -1/2)
                      mean-synodic-month)))]
     (+ (saudi-new-month-on-or-before ; First day of month.
@@ -6486,9 +6486,9 @@
         elapsed-months
         (round (/ (- crescent islamic-epoch)
                   mean-synodic-month))
-        year (1+ (quotient elapsed-months 12))
-        month (1+ (mod elapsed-months 12))
-        day (1+ (- date crescent))]
+        year (inc (quotient elapsed-months 12))
+        month (inc (mod elapsed-months 12))
+        day (inc (- date crescent))]
     (islamic-date year month day)))
 
 (def hebrew-location
@@ -6519,14 +6519,14 @@
   (let [month (standard-month h-date)
         day (standard-day h-date)
         year (standard-year h-date)
-        year1 (if (>= month tishri) (1- year) year)
+        year1 (if (>= month tishri) (dec year) year)
         start (fixed-from-hebrew
                (hebrew-date year1 nisan 1)) 
         g-year (gregorian-year-from-fixed
                 (+ start 60))
         new-year (observational-hebrew-first-of-nisan g-year)
         midmonth                        ; Middle of given month.
-        (+ new-year (round (* 29.5L0 (1- month))) 15)]
+        (+ new-year (round (* 29.5L0 (dec month))) 15)]
     (+ (phasis-on-or-before ; First day of month.
         midmonth hebrew-location)
        day -1)))
@@ -6541,9 +6541,9 @@
         ny (observational-hebrew-first-of-nisan g-year)
         new-year (if (< date ny)
                    (observational-hebrew-first-of-nisan
-                    (1- g-year))
+                    (dec g-year))
                    ny)
-        month (1+ (round (/ (- crescent new-year) 29.5L0)))
+        month (inc (round (/ (- crescent new-year) 29.5L0)))
         year (+ (standard-year (hebrew-from-fixed new-year))
                 (if (>= month tishri) 1 0))
         day (- date crescent -1)]
@@ -6553,7 +6553,7 @@
   ;; TYPE (fixed-date location) -> 1..31
   ;; Length of lunar month based on observability at $location$,
   ;; which includes $date$.
-  (let [moon (phasis-on-or-after (1+ date) location)
+  (let [moon (phasis-on-or-after (inc date) location)
         prev (phasis-on-or-before date location)]
     (- moon prev)))
 
@@ -6577,13 +6577,13 @@
         year (standard-year i-date)
         midmonth                        ; Middle of given month.
         (+ islamic-epoch
-           (floor (* (+ (* (1- year) 12)
+           (floor (* (+ (* (dec year) 12)
                         month -1/2)
                      mean-synodic-month)))
         moon (phasis-on-or-before       ; First day of month.
               midmonth islamic-location)
         date (+ moon day -1)]
-    (if (early-month? midmonth islamic-location) (1- date) date)))
+    (if (early-month? midmonth islamic-location) (dec date) date)))
 
 (defn alt-observational-islamic-from-fixed [date]
   ;; TYPE fixed-date -> islamic-date
@@ -6594,14 +6594,14 @@
         long (and early
                   (> (month-length date islamic-location) 29))
         date-prime
-        (if long (1+ date) date)
+        (if long (inc date) date)
         moon                            ; Most recent new moon.
         (phasis-on-or-before date-prime islamic-location)
         elapsed-months
         (round (/ (- moon islamic-epoch)
                   mean-synodic-month))
-        year (1+ (quotient elapsed-months 12))
-        month (1+ (mod elapsed-months 12))
+        year (inc (quotient elapsed-months 12))
+        month (inc (mod elapsed-months 12))
         day (- date-prime moon
                (if (and early (not long)) -2 -1))]
     (islamic-date year month day)))
@@ -6614,16 +6614,16 @@
   (let [early (early-month? date hebrew-location)
         long (and early (> (month-length date hebrew-location) 29))
         date-prime
-        (if long (1+ date) date)
+        (if long (inc date) date)
         moon                            ; Most recent new moon.
         (phasis-on-or-before date-prime hebrew-location)
         g-year (gregorian-year-from-fixed date-prime)
         ny (observational-hebrew-first-of-nisan g-year)
         new-year (if (< date-prime ny)
                    (observational-hebrew-first-of-nisan
-                    (1- g-year))
+                    (dec g-year))
                    ny)
-        month (1+ (round (/ (- moon new-year) 29.5L0)))
+        month (inc (round (/ (- moon new-year) 29.5L0)))
         year (+ (standard-year (hebrew-from-fixed new-year))
                 (if (>= month tishri) 1 0))
         day (- date-prime moon
@@ -6637,18 +6637,18 @@
   (let [month (standard-month h-date)
         day (standard-day h-date)
         year (standard-year h-date)
-        year1 (if (>= month tishri) (1- year) year)
+        year1 (if (>= month tishri) (dec year) year)
         start (fixed-from-hebrew
                (hebrew-date year1 nisan 1)) 
         g-year (gregorian-year-from-fixed
                 (+ start 60))
         new-year (observational-hebrew-first-of-nisan g-year)
         midmonth                        ; Middle of given month.
-        (+ new-year (round (* 29.5L0 (1- month))) 15)
+        (+ new-year (round (* 29.5L0 (dec month))) 15)
         moon (phasis-on-or-before       ; First day of month.
               midmonth hebrew-location)
         date (+ moon day -1)]
-    (if (early-month? midmonth hebrew-location) (1- date) date)))
+    (if (early-month? midmonth hebrew-location) (dec date) date)))
 
 (defn classical-passover-eve [g-year]
   ;; TYPE gregorian-year -> fixed-date
@@ -6696,9 +6696,9 @@
   (let [g-year (gregorian-year-from-fixed date)
         dates                           ; All possible March 11's.
         (append
-         (julian-in-gregorian march 11 (1- g-year))
+         (julian-in-gregorian march 11 (dec g-year))
          (julian-in-gregorian march 11 g-year)
-         (list (1+ date)))              ; Extra to stop search.
+         (list (inc date)))              ; Extra to stop search.
         n
         (final i 0 
                (<= (samaritan-new-moon-after 
@@ -6713,7 +6713,7 @@
         (samaritan-new-moon-at-or-before
          (samaritan-noon date))
         new-year (samaritan-new-year-on-or-before moon)
-        month (1+ (round (/ (- moon new-year) 29.5L0)))
+        month (inc (round (/ (- moon new-year) 29.5L0)))
         year (+ (round (/ (- new-year samaritan-epoch) 365.25L0))
                 (ceiling (- month 5) 8))
         day (- date moon -1)]
@@ -6730,7 +6730,7 @@
                       (* 365.25L0 (- year 
                                      (ceiling (- month 5) 8))))))
         nm (samaritan-new-moon-at-or-before 
-            (+ ny (* 29.5L0 (1- month)) 15))]
+            (+ ny (* 29.5L0 (dec month)) 15))]
     (+ nm day -1)))
 
 ;;;;; NEW move into place
@@ -6785,14 +6785,14 @@
   ;; Topocentric lunar semi-diameter at moment $tee$ and $location$.
   (let [h (lunar-altitude tee location)
         p (lunar-parallax tee location)]
-    (* 0.27245L0 p (1+ (* (sin-degrees h) (sin-degrees p))))))
+    (* 0.27245L0 p (inc (* (sin-degrees h) (sin-degrees p))))))
 
 (defn shaukat-criterion [date location]
   ;; TYPE (fixed-date location) -> boolean
   ;; S. K. Shaukat's criterion for likely
   ;; visibility of crescent moon on eve of $date$ at $location$.
   ;; Not intended for high altitudes or polar regions.
-  (let [tee (simple-best-view (1- date) location)
+  (let [tee (simple-best-view (dec date) location)
         phase (lunar-phase tee)
         h (lunar-altitude tee location)
         cap-ARCL (arc-of-light tee)]
@@ -6806,7 +6806,7 @@
   ;; visibility of crescent moon on eve of $date$ at $location$.
   ;; Not intended for high altitudes or polar regions.
   (let [tee                         ; Best viewing time prior evening.
-        (bruin-best-view (1- date) location)
+        (bruin-best-view (dec date) location)
         phase (lunar-phase tee)
         cap-D (lunar-semi-diameter tee location)
         cap-ARCL (arc-of-light tee)
@@ -6825,7 +6825,7 @@
   (let [dark                        ; Best viewing time prior evening.
         (dusk date location (deg 4.5L0))
         best (if (equal dark bogus)
-               (1+ date)                ; An arbitrary time.
+               (inc date)                ; An arbitrary time.
                dark)]
     (universal-from-standard best location)))
 
@@ -6837,7 +6837,7 @@
         moon (moonset date location)
         best                        ; Best viewing time prior evening.
         (if (or (equal sun bogus) (equal moon bogus))
-          (1+ date)                     ; An arbitrary time.
+          (inc date)                     ; An arbitrary time.
           (+ (* 5/9 sun) (* 4/9 moon)))]
     (universal-from-standard best location)))
 
