@@ -1,4 +1,5 @@
 (ns clj-calcalc.core
+  (:refer-clojure :exclude [next]) ;; next is used to compute the next occurrence of a phenomenon
   (:require [clojure.math.numeric-tower :as math :refer [expt floor round abs]]))
 
 
