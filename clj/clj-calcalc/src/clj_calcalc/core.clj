@@ -37,14 +37,16 @@
 (defn tenth [coll]
   (nth coll 9))
 
-(defmacro length [coll]
-  `(count ~coll))
+(def length count)
 
-(defmacro append [coll x]
-  `(concat ~coll [~x]))
+(defn append
+  ([coll x]
+   (concat coll [x]))
+  ([coll1 coll2 & more]
+   (apply append (concat coll1 coll2) more)))
 
-(defmacro member [x coll]
-  `(boolean (some #{~x} ~coll)))
+(defn member [x coll]
+  (boolean (some #{x} coll)))
 
 (defn ceiling [x]
   (Math/ceil x))
